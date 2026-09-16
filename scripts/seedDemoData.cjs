@@ -35,10 +35,10 @@ const demoTechnicians = [
   { name: 'Suresh', email: 'demo.technician04@homeiq.test', pass: 'HomeIQ@Tech04', cat: ['Washing Machine'], area: 'RS Puram', rate: 400, rating: 4.2 },
   { name: 'Vignesh', email: 'demo.technician05@homeiq.test', pass: 'HomeIQ@Tech05', cat: ['AC', 'Washing Machine', 'Refrigerator'], area: 'Peelamedu', rate: 700, rating: 5.0 },
   { name: 'Dinesh', email: 'demo.technician06@homeiq.test', pass: 'HomeIQ@Tech06', cat: ['AC'], area: 'Singanallur', rate: 450, rating: 4.6 },
-  { name: 'Manoj', email: 'demo.technician07@homeiq.test', pass: 'HomeIQ@Tech07', cat: ['Refrigerator'], area: 'Ganapathy', rate: 480, rating: 4.4 },
-  { name: 'Bala', email: 'demo.technician08@homeiq.test', pass: 'HomeIQ@Tech08', cat: ['Washing Machine'], area: 'Saravanampatti', rate: 520, rating: 4.7 },
-  { name: 'Ashwin', email: 'demo.technician09@homeiq.test', pass: 'HomeIQ@Tech09', cat: ['AC', 'Refrigerator'], area: 'Vadavalli', rate: 550, rating: 4.8 },
-  { name: 'Santhosh', email: 'demo.technician10@homeiq.test', pass: 'HomeIQ@Tech10', cat: ['Washing Machine'], area: 'Kuniyamuthur', rate: 450, rating: 4.3 }
+  { name: 'Karthik', email: 'demo.technician07@homeiq.test', pass: 'HomeIQ@Tech07', cat: ['Refrigerator'], area: 'Ganapathy', rate: 480, rating: 4.4 },
+  { name: 'Manoj', email: 'demo.technician08@homeiq.test', pass: 'HomeIQ@Tech08', cat: ['Washing Machine'], area: 'Saravanampatti', rate: 520, rating: 4.7 },
+  { name: 'Bala', email: 'demo.technician09@homeiq.test', pass: 'HomeIQ@Tech09', cat: ['AC', 'Refrigerator'], area: 'Vadavalli', rate: 550, rating: 4.8 },
+  { name: 'Surya', email: 'demo.technician10@homeiq.test', pass: 'HomeIQ@Tech10', cat: ['Washing Machine'], area: 'Kuniyamuthur', rate: 450, rating: 4.3 }
 ];
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
