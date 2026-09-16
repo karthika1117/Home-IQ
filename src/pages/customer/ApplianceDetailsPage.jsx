@@ -24,7 +24,7 @@ export default function ApplianceDetailsPage() {
           .from('appliances')
           .select('*')
           .eq('appliance_id', applianceId)
-          .eq('customer_id', customer.customer_id)
+          .eq('customer_id', customer.customer_code)
           .single();
 
         if (appErr) throw new Error("Appliance not found or unauthorized.");

@@ -19,7 +19,7 @@ export default function AppliancesPage() {
         const { data, error } = await supabase
           .from('appliances')
           .select('*')
-          .eq('customer_id', customer.customer_id)
+          .eq('customer_id', customer.customer_code)
           .order('created_at', { ascending: false });
 
         if (error) throw error;

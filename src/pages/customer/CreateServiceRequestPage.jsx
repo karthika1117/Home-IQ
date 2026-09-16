@@ -64,7 +64,7 @@ export default function CreateServiceRequestPage() {
         const { data, error: fetchError } = await supabase
           .from('appliances')
           .select('appliance_id, brand, appliance_type')
-          .eq('customer_id', customer.customer_id);
+          .eq('customer_id', customer.customer_code);
 
         if (fetchError) throw fetchError;
         setAppliances(data || []);

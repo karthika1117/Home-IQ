@@ -28,7 +28,7 @@ export default function CustomerDashboard() {
       const code = customer.customer_code;
       try {
         const [appRes, bookRes, histRes, oppRes] = await Promise.all([
-          supabase.from('appliances').select('appliance_id', { count: 'exact', head: true }).eq('customer_id', customer.customer_id),
+          supabase.from('appliances').select('appliance_id', { count: 'exact', head: true }).eq('customer_id', code),
           supabase.from('bookings').select('booking_id', { count: 'exact', head: true }).eq('customer_id', code),
           supabase.from('service_history').select('history_id', { count: 'exact', head: true }).eq('customer_id', code),
           supabase.from('opportunities').select('opportunity_id', { count: 'exact', head: true }).eq('customer_id', code).eq('status', 'Open')

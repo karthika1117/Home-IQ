@@ -52,7 +52,7 @@ export default function AddAppliancePage() {
     setError(null);
     try {
       const { error: insertErr } = await supabase.from('appliances').insert({
-        customer_id: customer.customer_id,
+        customer_id: customer.customer_code,
         appliance_type: form.appliance_type,
         brand: form.brand || null,
         model: form.model || null,

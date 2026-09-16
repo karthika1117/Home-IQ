@@ -144,7 +144,7 @@ async function runSeed() {
       const srv = new Date(today); srv.setMonth(today.getMonth() - template.srvMs);
       
       const { data: app } = await supabase.from('appliances').insert({
-        customer_id: c.customer.customer_id, // UUID
+        customer_id: c.customer.customer_code,
         appliance_type: template.type,
         brand: template.brand,
         model: template.model,
