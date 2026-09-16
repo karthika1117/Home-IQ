@@ -223,20 +223,6 @@ export async function sendBookingConfirmationToAgent1(request) {
   }
 
   const payload = buildBookingConfirmationPayload(request);
-  
-  if (isDemo && !webhookUrl) {
-    // Mock response for Booking Confirmation
-    return {
-      success: true,
-      status: 'Booking Confirmed',
-      bookingId: 'demo-booking-' + Date.now(),
-      technicianName: 'Demo Technician',
-      preferredDate: request.preferredDate,
-      preferredStart: request.preferredStart,
-      preferredEnd: request.preferredEnd,
-      area: request.area
-    };
-  }
 
   const { data: { session } } = await supabase.auth.getSession();
   const token = session?.access_token;

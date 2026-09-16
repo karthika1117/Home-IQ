@@ -81,7 +81,7 @@ export default function TechnicianDashboard() {
       <div className="stat-grid">
         <StatCard icon="📅" label="Upcoming Jobs" value={loading ? '...' : stats.upcomingJobs} link="/technician/jobs" />
         <StatCard icon="✅" label="Completed Jobs" value={loading ? '...' : stats.completedJobs} link="/technician/history" />
-        <StatCard icon="▣" label="Service History" value={loading ? '...' : stats.history} link="/technician/history" />
+        <StatCard icon="📋" label="Service History" value={loading ? '...' : stats.history} link="/technician/history" />
         <StatCard icon="⭐" label="Current Rating" value={technician.rating > 0 ? technician.rating.toFixed(1) : 'New'} link="/technician/profile" />
         <StatCard icon="🔔" label="Unread Notifications" value={loading ? '...' : stats.notifications} link="/technician/notifications" />
       </div>
@@ -95,7 +95,7 @@ export default function TechnicianDashboard() {
           <LoadingState message="Loading recent jobs..." />
         ) : recentJobs.length === 0 ? (
           <EmptyState 
-            icon="🔧"
+            icon="📭"
             title="No jobs yet"
             description="No jobs have been assigned yet."
           />

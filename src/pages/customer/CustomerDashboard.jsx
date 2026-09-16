@@ -64,10 +64,10 @@ export default function CustomerDashboard() {
       </section>
 
       <div className="stat-grid">
-        <StatCard icon="🏠" label="My Appliances" value={loading ? '...' : stats.appliances} link="/customer/appliances" />
+        <StatCard icon="🔌" label="My Appliances" value={loading ? '...' : stats.appliances} link="/customer/appliances" />
         <StatCard icon="📅" label="Upcoming Bookings" value={loading ? '...' : stats.bookings} link="/customer/bookings" />
-        <StatCard icon="✅" label="Service History" value={loading ? '...' : stats.history} link="/customer/history" />
-        <StatCard icon="⭐" label="Open Opportunities" value={loading ? '...' : stats.opportunities} link="/customer/opportunities" />
+        <StatCard icon="📋" label="Service History" value={loading ? '...' : stats.history} link="/customer/history" />
+        <StatCard icon="💡" label="Open Opportunities" value={loading ? '...' : stats.opportunities} link="/customer/opportunities" />
       </div>
 
       <div className="dashboard-section">
