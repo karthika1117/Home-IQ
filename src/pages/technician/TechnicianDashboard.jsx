@@ -6,6 +6,8 @@ import Button from '../../components/Button';
 import { useTechnician } from '../../context/TechnicianContext';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
+import LoadingState from '../../components/LoadingState';
+import EmptyState from '../../components/EmptyState';
 import '../customer/Dashboard.css';
 
 export default function TechnicianDashboard() {
@@ -89,8 +91,14 @@ export default function TechnicianDashboard() {
           <h2 className="dashboard-section__title">Recent Jobs</h2>
           <Link to="/technician/jobs" style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: '0.875rem' }}>View all</Link>
         </div>
-        {loading ? <p style={{ marginTop: '1rem', color: 'var(--color-text-secondary)' }}>Loading recent jobs...</p> : recentJobs.length === 0 ? (
-          <Card padding="md" style={{ marginTop: '1rem' }}><p style={{ color: 'var(--color-text-secondary)' }}>No jobs have been assigned yet.</p></Card>
+        {loading ? (
+          <LoadingState message="Loading recent jobs..." />
+        ) : recentJobs.length === 0 ? (
+          <EmptyState 
+            icon="🔧"
+            title="No jobs yet"
+            description="No jobs have been assigned yet."
+          />
         ) : (
           <Card padding="none" style={{ marginTop: '1rem', overflowX: 'auto' }}>
             <table className="data-table">

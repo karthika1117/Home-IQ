@@ -4,6 +4,8 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import { useCustomer } from '../../context/CustomerContext';
 import { supabase } from '../../lib/supabaseClient';
+import LoadingState from '../../components/LoadingState';
+import EmptyState from '../../components/EmptyState';
 
 export default function BookingsPage() {
   const { customer } = useCustomer();
@@ -59,11 +61,13 @@ export default function BookingsPage() {
       )}
 
       {loading ? (
-        <p>Loading bookings...</p>
+        <LoadingState message="Loading your bookings..." fullHeight />
       ) : bookings.length === 0 ? (
-        <Card padding="lg" style={{ textAlign: 'center' }}>
-          <p style={{ color: 'var(--color-text-secondary)', margin: 0 }}>No bookings yet.</p>
-        </Card>
+        <EmptyState 
+          icon="📅"
+          title="No bookings yet"
+          description="You don't have any upcoming or past bookings at this time."
+        />
       ) : (
         <Card padding="none">
           <table className="data-table">

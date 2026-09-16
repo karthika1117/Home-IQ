@@ -1,3 +1,4 @@
+import LoadingState from '../../components/LoadingState';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageContainer from '../../components/PageContainer';
@@ -47,7 +48,7 @@ export default function ApplianceDetailsPage() {
     loadData();
   }, [applianceId, customer.customer_code]);
 
-  if (loading) return <PageContainer className="dashboard-content"><p>Loading appliance details...</p></PageContainer>;
+  if (loading) return <PageContainer className="dashboard-content"><LoadingState message="Loading..." fullHeight={true} /></PageContainer>;
   if (error) return <PageContainer className="dashboard-content"><div className="auth-message auth-message--error">{error}</div><Button onClick={() => navigate('/customer/appliances')}>Back</Button></PageContainer>;
 
   return (

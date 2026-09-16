@@ -1,3 +1,4 @@
+import LoadingState from '../../components/LoadingState';
 import React, { useState, useEffect } from 'react';
 import PageContainer from '../../components/PageContainer';
 import Card from '../../components/Card';
@@ -28,7 +29,7 @@ export default function OpportunitiesPage() {
   return (
     <PageContainer className="dashboard-content">
       <h1 className="dashboard-welcome__title" style={{ marginBottom: '2rem' }}>Opportunities & Recommendations</h1>
-      {loading ? <p>Loading opportunities...</p> : opportunities.length === 0 ? (
+      {loading ? <LoadingState message="Loading..." fullHeight={true} /> : opportunities.length === 0 ? (
         <Card padding="lg" style={{ textAlign: 'center' }}>
           <p style={{ color: 'var(--color-text-secondary)', margin: 0 }}>No open opportunities or recommendations at this time.</p>
         </Card>

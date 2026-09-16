@@ -1,3 +1,4 @@
+import LoadingState from '../../components/LoadingState';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageContainer from '../../components/PageContainer';
@@ -154,7 +155,7 @@ export default function JobDetailsPage() {
     loadData();
   }, [bookingId, technician.technician_id]);
 
-  if (loading) return <PageContainer className="dashboard-content"><p>Loading job details...</p></PageContainer>;
+  if (loading) return <PageContainer className="dashboard-content"><LoadingState message="Loading..." fullHeight={true} /></PageContainer>;
   if (error) return <PageContainer className="dashboard-content"><div className="auth-message auth-message--error">{error}</div><Button onClick={() => navigate('/technician/jobs')}>Back to Jobs</Button></PageContainer>;
 
   return (

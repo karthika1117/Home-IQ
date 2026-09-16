@@ -1,3 +1,4 @@
+import LoadingState from '../../components/LoadingState';
 import React, { useState, useEffect } from 'react';
 import PageContainer from '../../components/PageContainer';
 import Card from '../../components/Card';
@@ -39,7 +40,7 @@ export default function TechnicianHistoryPage() {
   return (
     <PageContainer className="dashboard-content">
       <h1 className="dashboard-welcome__title" style={{ marginBottom: '2rem' }}>Completed Jobs & History</h1>
-      {loading ? <p>Loading history...</p> : history.length === 0 ? (
+      {loading ? <LoadingState message="Loading..." fullHeight={true} /> : history.length === 0 ? (
         <Card padding="lg" style={{ textAlign: 'center' }}>
           <p style={{ color: 'var(--color-text-secondary)', margin: 0 }}>Completed service visits will appear here.</p>
         </Card>

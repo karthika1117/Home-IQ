@@ -4,6 +4,8 @@ import PageContainer from '../../components/PageContainer';
 import Card from '../../components/Card';
 import { useTechnician } from '../../context/TechnicianContext';
 import { supabase } from '../../lib/supabaseClient';
+import LoadingState from '../../components/LoadingState';
+import EmptyState from '../../components/EmptyState';
 
 export default function JobsPage() {
   const { technician } = useTechnician();
@@ -63,9 +65,10 @@ export default function JobsPage() {
     <div style={{ marginBottom: '2.5rem' }}>
       <h2 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>{title} ({list.length})</h2>
       {list.length === 0 ? (
-        <Card padding="md">
-          <p style={{ color: 'var(--color-text-secondary)', margin: 0 }}>No jobs in this category.</p>
-        </Card>
+        <EmptyState 
+          icon="📅"
+          title={`No ${title.toLowerCase()} jobs`}
+        />
       ) : (
         <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
           {list.map(j => (
@@ -103,7 +106,7 @@ export default function JobsPage() {
         </div>
       )}
       {loading ? (
-        <p>Loading jobs...</p>
+        <LoadingState message="Loading your assigned jobs..." fullHeight />
       ) : (
         <>
           {renderSection('Upcoming', upcoming)}

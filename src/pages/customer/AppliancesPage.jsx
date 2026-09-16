@@ -6,6 +6,9 @@ import Button from '../../components/Button';
 import { useCustomer } from '../../context/CustomerContext';
 import { supabase } from '../../lib/supabaseClient';
 
+import LoadingState from '../../components/LoadingState';
+import EmptyState from '../../components/EmptyState';
+
 export default function AppliancesPage() {
   const { customer } = useCustomer();
   const navigate = useNavigate();
@@ -43,12 +46,14 @@ export default function AppliancesPage() {
       {error && <div className="auth-message auth-message--error">{error}</div>}
 
       {loading ? (
-        <p>Loading appliances...</p>
+        <LoadingState message="Loading your appliances..." fullHeight />
       ) : appliances.length === 0 ? (
-        <Card padding="lg" style={{ textAlign: 'center' }}>
-          <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1rem' }}>No appliances added yet. Add your first appliance to keep track of its health and service history.</p>
-          <Button variant="secondary" onClick={() => navigate('/customer/appliances/new')}>Add Appliance</Button>
-        </Card>
+        <EmptyState 
+          icon="🔌"
+          title="No appliances yet"
+          description="Add your first appliance to keep track of its health and service history."
+          action={<Button variant="primary" onClick={() => navigate('/customer/appliances/new')}>Add Appliance</Button>}
+        />
       ) : (
         <div className="item-grid">
           {appliances.map(a => (

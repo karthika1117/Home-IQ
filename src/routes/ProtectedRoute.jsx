@@ -1,3 +1,4 @@
+import LoadingState from '../components/LoadingState';
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -15,7 +16,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
     return (
       <PageContainer className="auth-loading-page">
         <div className="auth-loading-spinner" aria-hidden="true" />
-        <p className="auth-loading-text">Loading...</p>
+        <LoadingState message="Loading..." fullHeight={true} />
       </PageContainer>
     );
   }

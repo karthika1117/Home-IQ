@@ -5,6 +5,8 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import { useCustomer } from '../../context/CustomerContext';
 import { supabase } from '../../lib/supabaseClient';
+import LoadingState from '../../components/LoadingState';
+import EmptyState from '../../components/EmptyState';
 
 export default function ServiceRequestsPage() {
   const { customer } = useCustomer();
@@ -45,14 +47,16 @@ export default function ServiceRequestsPage() {
       </div>
 
       {loading ? (
-        <p>Loading requests...</p>
+        <LoadingState message="Loading your service requests..." fullHeight />
       ) : error ? (
         <div className="auth-message auth-message--error" role="alert">{error}</div>
       ) : requests.length === 0 ? (
-        <Card padding="lg" style={{ textAlign: 'center' }}>
-          <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1rem' }}>No service requests yet.</p>
-          <Button variant="secondary" onClick={() => navigate('/customer/requests/new')}>Request Service</Button>
-        </Card>
+        <EmptyState 
+          icon="🔧"
+          title="No service requests yet"
+          description="You haven't made any service requests yet."
+          action={<Button variant="primary" onClick={() => navigate('/customer/requests/new')}>Request Service</Button>}
+        />
       ) : (
         <Card padding="none">
           <table className="data-table">
