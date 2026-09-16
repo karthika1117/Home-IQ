@@ -16,17 +16,18 @@
 
 .field__input {
   width: 100%;
-  padding: 0.625rem 0.875rem;
+  padding: 0.625rem 1rem;
   font-size: 0.9375rem;
   font-family: inherit;
   color: var(--color-text-primary);
   background-color: var(--color-surface);
-  border: 1.5px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-sizing: border-box;
   -webkit-appearance: none;
   appearance: none;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .field__input::placeholder {
@@ -34,13 +35,13 @@
 }
 
 .field__input:hover {
-  border-color: var(--color-border-strong);
+  border-color: var(--color-border-focus);
 }
 
 .field__input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-light);
+  box-shadow: var(--shadow-focus);
 }
 
 .field--error .field__input {
@@ -48,7 +49,7 @@
 }
 
 .field--error .field__input:focus {
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+  box-shadow: 0 0 0 3px var(--color-danger-bg);
 }
 
 .field__error {
