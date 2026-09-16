@@ -303,22 +303,29 @@ export default function CreateServiceRequestPage() {
 
           {shortlist.length > 0 && (
             <div style={{ marginTop: '2rem' }}>
-              <h2 className="dashboard-welcome__title" style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Recommended Technicians</h2>
+              <h2 className="dashboard-welcome__title" style={{ fontSize: '1.3rem', marginBottom: '1rem' }}>Verified Recommended Technicians</h2>
               {shortlist.map((technician) => {
                 const techId = technician.technician_id || technician.email || technician.name;
                 const selected = techId === selectedTechnicianId;
                 return (
-                  <div key={techId} style={{ border: '1px solid #e5e7eb', borderRadius: '12px', padding: '1rem', marginBottom: '1rem' }}>
+                  <div key={techId} style={{ border: '1px solid var(--color-border)', borderRadius: '12px', padding: '1rem', marginBottom: '1rem', background: 'var(--color-surface)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start' }}>
                       <div>
                         <h3 style={{ margin: '0 0 0.4rem' }}>{technician.name}</h3>
-                        <div style={{ color: '#475569', fontSize: '0.95rem' }}>★ {technician.rating ?? 'N/A'}</div>
-                        <div style={{ color: '#475569', fontSize: '0.95rem' }}>₹{technician.hourly_rate ?? 'N/A'}/hour</div>
-                        <div style={{ color: '#475569', fontSize: '0.95rem' }}>{technician.area || 'N/A'}</div>
-                        <div style={{ color: '#475569', fontSize: '0.95rem' }}>Match Score: {technician.match_score ?? 'N/A'}</div>
-                        <div style={{ color: '#475569', fontSize: '0.95rem' }}>{technician.match_status || 'Pending'}</div>
+                        <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.95rem' }}>★ {technician.rating ?? 'N/A'}</div>
+                        <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.95rem' }}>₹{technician.hourly_rate ?? 'N/A'}/hour</div>
+                        <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.95rem' }}>{technician.area || 'N/A'}</div>
+                        <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.95rem' }}>Match Score: {technician.final_score ?? technician.match_score ?? 'N/A'}</div>
+                        
+                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                          <span className="status-badge status--blue">{technician.match_status || 'Recommended'}</span>
+                          {technician.verification && (
+                            <span className="status-badge status--green">✓ Verified Match</span>
+                          )}
+                        </div>
+
                         {technician.availability && (
-                          <div style={{ color: '#475569', fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                          <div style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem', marginTop: '0.75rem' }}>
                             {Object.entries(technician.availability).slice(0, 3).map(([day, slots]) => (
                               <div key={day}>{day}: {Array.isArray(slots) ? slots.join(', ') : 'N/A'}</div>
                             ))}

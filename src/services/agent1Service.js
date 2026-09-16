@@ -133,62 +133,36 @@ export function validateAgent1Request(request) {
 }
 
 export async function sendServiceRequestToAgent1(request) {
-  const webhookUrl = import.meta.env.VITE_AGENT1_WEBHOOK_URL;
-  const isDemo = import.meta.env.VITE_DEMO_MODE === 'true';
-
-  if (!webhookUrl && !isDemo) {
-    throw new Error('Service matching is unavailable right now. Please try again later.');
-  }
-
   const validationMessage = validateAgent1Request(request);
   if (validationMessage) {
     throw new Error(validationMessage);
   }
 
-  const payload = buildAgent1Payload(request);
-
-  if (isDemo && !webhookUrl) {
-    // Dynamically fetch a real technician for the mock to ensure DB relationships hold
-    const { data: realTechs } = await supabase.from('technicians').select('*').limit(1);
-    const mockTech = realTechs?.[0] || { technician_id: "fallback" };
-    
-    // Mock response for Agent 1
-    return {
-      success: true,
-      status: "Technicians Found",
-      count: 1,
-      message: "Technicians successfully matched.",
-      technicians: [{
-        technician_id: mockTech.technician_id,
-        name: mockTech.name || "Demo Technician",
-        service_categories: [request.category || "AC"],
-        area: request.area || "Demo Area",
-        hourly_rate: 400,
-        rating: 4.8,
-        availability: {
-          "Monday-Friday": ["09:00-18:00"]
-        },
-        match_score: 95,
-        match_status: "Recommended"
-      }]
-    };
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+  if (!token) {
+    throw new Error('You must be logged in to request a service.');
   }
 
   let response;
   try {
-    response = await fetch(webhookUrl, {
+    // Send to our secure backend verification layer instead of directly to SNS
+    response = await fetch('/api/match-technicians', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(request),
     });
   } catch {
     throw new Error('Unable to contact the service matching system. Please try again.');
   }
 
   if (!response.ok) {
-    throw new Error('Unable to contact the service matching system. Please try again.');
+    const text = await response.text().catch(() => '');
+    const parsed = text ? (() => { try { return JSON.parse(text); } catch { return null; } })() : null;
+    throw new Error(parsed?.message || 'Unable to contact the service matching system. Please try again.');
   }
 
   let data = null;
@@ -198,14 +172,14 @@ export async function sendServiceRequestToAgent1(request) {
   } catch {
     return {
       success: false,
-      message: 'Unable to contact the service matching system. Please try again.',
+      message: 'Unable to parse match response.',
     };
   }
 
   if (!data || typeof data !== 'object') {
     return {
       success: false,
-      message: 'Unable to contact the service matching system. Please try again.',
+      message: 'Invalid response from matching system.',
     };
   }
 
