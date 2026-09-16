@@ -148,6 +148,10 @@ export async function sendServiceRequestToAgent1(request) {
   const payload = buildAgent1Payload(request);
 
   if (isDemo && !webhookUrl) {
+    // Dynamically fetch a real technician for the mock to ensure DB relationships hold
+    const { data: realTechs } = await supabase.from('technicians').select('*').limit(1);
+    const mockTech = realTechs?.[0] || { technician_id: "fallback" };
+    
     // Mock response for Agent 1
     return {
       success: true,
@@ -155,8 +159,8 @@ export async function sendServiceRequestToAgent1(request) {
       count: 1,
       message: "Technicians successfully matched.",
       technicians: [{
-        technician_id: "demo-tech-id-1234",
-        name: "Demo Technician",
+        technician_id: mockTech.technician_id,
+        name: mockTech.name || "Demo Technician",
         service_categories: [request.category || "AC"],
         area: request.area || "Demo Area",
         hourly_rate: 400,

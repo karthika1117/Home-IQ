@@ -45,7 +45,15 @@ export default function JobsPage() {
     }
   }, [technician]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { 
+    load(); 
+    
+    // Refresh when tab gains focus
+    const handleFocus = () => load();
+    window.addEventListener('focus', handleFocus);
+    
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [load]);
 
   const upcoming = jobs.filter(j => j.status === 'Booked');
   const completed = jobs.filter(j => j.status === 'Completed');
