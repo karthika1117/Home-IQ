@@ -1,0 +1,20 @@
+.page-container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  box-sizing: border-box;
+}
+
+.page-container--narrow  { max-width: 480px; }
+.page-container--default { max-width: 1080px; }
+.page-container--wide    { max-width: 1280px; }
+
+@media (min-width: 768px) {
+  .page-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+

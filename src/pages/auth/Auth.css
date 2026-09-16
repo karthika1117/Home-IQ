@@ -1,0 +1,253 @@
+/* Shared styles for auth pages (Login & Signup) */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background-color: var(--color-bg);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 2.5rem 2rem;
+  box-shadow: var(--shadow-md);
+}
+
+.auth-card--wide {
+  max-width: 520px;
+}
+
+/* Brand */
+.auth-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.auth-brand__icon {
+  font-size: 1.75rem;
+}
+
+.auth-brand__name {
+  font-size: 1.625rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+}
+
+/* Headings */
+.auth-title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  text-align: center;
+  margin: 0 0 0.375rem;
+}
+
+.auth-subtitle {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: 0 0 1.75rem;
+}
+
+/* Message */
+.auth-message {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+
+.auth-message--info {
+  background-color: var(--color-info-bg);
+  color: var(--color-info-text);
+  border: 1px solid var(--color-info-border);
+}
+
+.auth-message--error {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.auth-message--success {
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+/* Form */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+@media (min-width: 480px) {
+  .form-row {
+    flex-direction: row;
+    gap: 1rem;
+  }
+  .form-row > * {
+    flex: 1;
+  }
+}
+
+.form-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+
+.form-divider::before,
+.form-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.form-divider::before { margin-right: 0.75rem; }
+.form-divider::after { margin-left: 0.75rem; }
+
+/* Footer */
+.auth-footer-text {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: 1.5rem 0 0;
+}
+
+.auth-link {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+/* Role selector */
+.role-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.role-fieldset__legend {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.role-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.role-option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.875rem 1rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+  position: relative;
+}
+
+.role-option:hover {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.role-option--selected {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.role-option__radio {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.role-option__label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.role-option--selected .role-option__label {
+  color: var(--color-primary);
+}
+
+.role-option__desc {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+/* Checkbox specific styles */
+.checkbox-fieldset {
+  border: 1px solid var(--color-border);
+  padding: 1rem;
+  margin: 0;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-2);
+}
+
+.checkbox-fieldset__legend {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  padding: 0 0.5rem;
+  margin-left: -0.5rem;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  cursor: pointer;
+}
+
+.checkbox-label:hover span {
+  color: var(--color-text-primary);
+}
