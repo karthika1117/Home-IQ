@@ -47,15 +47,25 @@ export default async function handler(req, res) {
       return res.status(401).json({ success: false, message: 'Unauthorized.' });
     }
 
-    const { data: profile } = await systemClient.from('profiles').select('id, role').eq('id', user.id).single();
+    const { data: profile } = await systemClient.from('profiles').select('id, role, full_name, phone, email').eq('id', user.id).single();
     if (profile?.role !== 'customer') {
       return res.status(403).json({ success: false, message: 'Only customers can request matches.' });
     }
 
-    const { data: customerRecord } = await systemClient.from('customers').select('customer_code, full_name, phone, email').eq('profile_id', user.id).single();
-    if (!customerRecord) {
+    const { data: customerRecord, error: custErr } = await systemClient.from('customers').select('customer_code, customer_id, address').eq('profile_id', user.id).single();
+    if (custErr || !customerRecord) {
+      console.error('Customer fetch error:', custErr);
       return res.status(403).json({ success: false, message: 'Customer record not found.' });
     }
+    
+    // Combine into a single trusted object
+    const customer = {
+      customer_code: customerRecord.customer_code || customerRecord.customer_id,
+      full_name: profile.full_name,
+      phone: profile.phone,
+      email: profile.email,
+      address: customerRecord.address
+    };
 
     const {
       requestId,
@@ -73,7 +83,7 @@ export default async function handler(req, res) {
     if (requestId) {
       const { data, error } = await systemClient.from('service_requests').select('*').eq('request_id', requestId).single();
       if (error || !data) return res.status(404).json({ success: false, message: 'Service request not found.' });
-      if (data.customer_id !== customerRecord.customer_code) return res.status(403).json({ success: false, message: 'Not authorized for this request.' });
+      if (data.customer_id !== customer.customer_code) return res.status(403).json({ success: false, message: 'Not authorized for this request.' });
       
       requestRecord = data;
     }
@@ -139,10 +149,10 @@ export default async function handler(req, res) {
     if (agent1WebhookUrl && !isDemo) {
       try {
         const payload = {
-          customerId: customerRecord.customer_code,
-          customerName: customerRecord.full_name,
-          phone: customerRecord.phone,
-          email: customerRecord.email,
+          customerId: customer.customer_code,
+          customerName: customer.full_name,
+          phone: customer.phone,
+          email: customer.email,
           category,
           area: reqArea,
           preferredDate: date,
