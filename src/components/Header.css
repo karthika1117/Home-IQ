@@ -1,0 +1,94 @@
+.top-header {
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  height: 72px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.top-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 2rem;
+}
+
+.top-header__right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.top-header__location {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.top-header__icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s;
+}
+
+.top-header__icon-btn:hover {
+  background-color: var(--color-surface-2);
+}
+
+.top-header__user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.top-header__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--color-primary-dark);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.top-header__user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.top-header__username {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.top-header__role {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  line-height: 1.2;
+}
+
+@media (max-width: 767px) {
+  .top-header {
+    display: none; /* Hide header on mobile if we want to use the bottom/top nav */
+  }
+}

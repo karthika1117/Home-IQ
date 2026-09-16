@@ -312,7 +312,7 @@ export default function CreateServiceRequestPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'flex-start' }}>
                       <div>
                         <h3 style={{ margin: '0 0 0.4rem' }}>{technician.name}</h3>
-                        <div style={{ color: '#475569', fontSize: '0.95rem' }}>⭐ {technician.rating ?? 'N/A'}</div>
+                        <div style={{ color: '#475569', fontSize: '0.95rem' }}>★ {technician.rating ?? 'N/A'}</div>
                         <div style={{ color: '#475569', fontSize: '0.95rem' }}>₹{technician.hourly_rate ?? 'N/A'}/hour</div>
                         <div style={{ color: '#475569', fontSize: '0.95rem' }}>{technician.area || 'N/A'}</div>
                         <div style={{ color: '#475569', fontSize: '0.95rem' }}>Match Score: {technician.match_score ?? 'N/A'}</div>

@@ -163,7 +163,7 @@ export default function JobDetailsPage() {
       <div style={{ marginBottom: '2rem' }}>
         <Button variant="ghost" size="sm" onClick={() => navigate('/technician/jobs')} style={{ marginBottom: '1rem' }}>← Back to Jobs</Button>
         <h1 className="dashboard-welcome__title">Job: {job.service_category}</h1>
-        <span className="status-badge" style={{ background: '#dcfce7', color: '#15803d', marginTop: '0.5rem', display: 'inline-block' }}>{job.status}</span>
+        <span className="status-badge status--green" style={{ marginTop: '0.5rem', display: 'inline-block' }}>{job.status}</span>
       </div>
 
       <div style={{ display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
@@ -200,10 +200,10 @@ export default function JobDetailsPage() {
       </div>
 
       {completedSuccess && (
-        <Card padding="lg" style={{ marginTop: '2rem', background: '#dcfce7', border: '1px solid #15803d' }}>
-          <h2 style={{ margin: '0 0 1rem', fontSize: '1.25rem', color: '#15803d' }}>✓ Job Completed</h2>
-          <p style={{ color: '#15803d', margin: '0 0 1.5rem' }}>Service history recorded successfully.</p>
-          <Button onClick={() => navigate('/technician/dashboard')} style={{ background: '#15803d', borderColor: '#15803d' }}>
+        <Card padding="lg" style={{ marginTop: '2rem', background: 'var(--color-success-bg)', border: '1px solid var(--color-success)' }}>
+          <h2 style={{ margin: '0 0 1rem', fontSize: '1.25rem', color: 'var(--color-success)' }}>✓ Job Completed</h2>
+          <p style={{ color: 'var(--color-success)', margin: '0 0 1.5rem' }}>Service history recorded successfully.</p>
+          <Button onClick={() => navigate('/technician/dashboard')} style={{ background: 'var(--color-success)', borderColor: 'var(--color-success)' }}>
             Return to Dashboard
           </Button>
         </Card>
