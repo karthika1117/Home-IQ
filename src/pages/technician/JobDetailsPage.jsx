@@ -22,6 +22,7 @@ export default function JobDetailsPage() {
   const [amount, setAmount] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [completedSuccess, setCompletedSuccess] = useState(false);
 
   const handleCompleteJob = async (e) => {
     e.preventDefault();
@@ -30,30 +31,29 @@ export default function JobDetailsPage() {
     setSubmitError(null);
 
     try {
-      // 1. Update booking status
-      const { error: bErr } = await supabase
-        .from('bookings')
-        .update({ status: 'Completed' })
-        .eq('booking_id', job.booking_id);
-      if (bErr) throw new Error(bErr.message);
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const response = await fetch('/api/complete-job', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({
+          bookingId: job.booking_id,
+          notes,
+          amount,
+          applianceId: appliance?.appliance_id
+        })
+      });
 
-      // 2. Insert Service History (if appliance exists)
+      const result = await response.json();
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Failed to complete job.');
+      }
+      // 3. Agent 2: Calculate Health & Identify Opportunity (Frontend side)
       if (appliance) {
-        const { error: shErr } = await supabase
-          .from('service_history')
-          .insert({
-            appliance_id: appliance.appliance_id,
-            customer_id: job.customer_id,
-            technician_id: technician.technician_id,
-            service_date: job.service_date,
-            service_category: job.service_category,
-            technician_notes: notes,
-            issues_found: notes, // For simplicity
-            amount: amount ? parseFloat(amount) : null
-          });
-        if (shErr) throw new Error(shErr.message);
-
-        // 3. Agent 2: Calculate Health & Identify Opportunity
         const todayStr = new Date().toISOString().split('T')[0];
         const updatedAppliance = { ...appliance, last_service_date: todayStr };
         const { score, status } = calculateApplianceHealth(updatedAppliance, notes);
@@ -113,6 +113,7 @@ export default function JobDetailsPage() {
       setJob({ ...job, status: 'Completed' });
       setNotes('');
       setAmount('');
+      setCompletedSuccess(true);
     } catch (err) {
       setSubmitError(err.message);
     } finally {
@@ -197,7 +198,17 @@ export default function JobDetailsPage() {
         )}
       </div>
 
-      {job.status === 'Booked' && (
+      {completedSuccess && (
+        <Card padding="lg" style={{ marginTop: '2rem', background: '#dcfce7', border: '1px solid #15803d' }}>
+          <h2 style={{ margin: '0 0 1rem', fontSize: '1.25rem', color: '#15803d' }}>✓ Job Completed</h2>
+          <p style={{ color: '#15803d', margin: '0 0 1.5rem' }}>Service history recorded successfully.</p>
+          <Button onClick={() => navigate('/technician/dashboard')} style={{ background: '#15803d', borderColor: '#15803d' }}>
+            Return to Dashboard
+          </Button>
+        </Card>
+      )}
+
+      {job.status === 'Booked' && !completedSuccess && (
         <Card padding="lg" style={{ marginTop: '2rem' }}>
           <h2 style={{ margin: '0 0 1rem', fontSize: '1.25rem' }}>Complete Job & Add Notes</h2>
           <form onSubmit={handleCompleteJob} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

@@ -31,7 +31,12 @@ export default function BookingsPage() {
     }
   }, [customer]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { 
+    load(); 
+    const handleFocus = () => load();
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [load]);
 
   const statusStyle = (status) => {
     if (status === 'Booked') return { background: '#dbeafe', color: '#1d4ed8' };

@@ -31,6 +31,10 @@ export default function ServiceRequestsPage() {
       }
     }
     loadRequests();
+    
+    const handleFocus = () => loadRequests();
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [customer]);
 
   return (

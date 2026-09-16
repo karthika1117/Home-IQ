@@ -47,6 +47,10 @@ export default function CustomerDashboard() {
       }
     }
     loadStats();
+    
+    const handleFocus = () => loadStats();
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [customer]);
 
   return (

@@ -54,6 +54,10 @@ export default function TechnicianDashboard() {
       }
     }
     loadStats();
+    
+    const handleFocus = () => loadStats();
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [profile?.id, technician]);
 
   return (
