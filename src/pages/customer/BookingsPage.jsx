@@ -22,7 +22,7 @@ export default function BookingsPage() {
     try {
       const { data, error: fetchErr } = await supabase
         .from('bookings')
-        .select('booking_id, service_category, service_date, service_time_slot, status, technicians(full_name), area, address, customer_name')
+        .select('booking_id, service_category, service_date, service_time_slot, status, technicians(name), area, address, customer_name')
         .eq('customer_id', customer.customer_code)
         .order('service_date', { ascending: false });
 
@@ -89,7 +89,7 @@ export default function BookingsPage() {
               {bookings.map(b => (
                 <tr key={b.booking_id}>
                   <td style={{ fontWeight: 500, color: 'var(--color-navy)' }}>{b.service_category || 'Service Call'}</td>
-                  <td style={{ color: 'var(--color-text-secondary)' }}>{b.technicians?.full_name || 'Assigned Technician'}</td>
+                  <td style={{ color: 'var(--color-text-secondary)' }}>{b.technicians?.name || 'Assigned Technician'}</td>
                   <td style={{ color: 'var(--color-text-secondary)' }}>{new Date(b.service_date).toLocaleDateString() || '-'}</td>
                   <td style={{ color: 'var(--color-text-secondary)' }}>{b.service_time_slot || '-'}</td>
                   <td style={{ color: 'var(--color-text-secondary)' }}>{b.area || '-'}</td>
