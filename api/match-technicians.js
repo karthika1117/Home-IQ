@@ -94,13 +94,12 @@ export default async function handler(req, res) {
       if (CATEGORIES.includes(aiResponse)) {
         extractedCategory = aiResponse;
       } else {
-        // Simple fallback parsing if AI adds extra words
         const match = CATEGORIES.find(c => aiResponse.toLowerCase().includes(c.toLowerCase()));
         if (match) extractedCategory = match;
       }
     } catch (e) {
       console.error('Gemini API Error:', e);
-      // Fallback
+      return res.status(500).json({ success: false, message: 'Gemini API Error: ' + e.message });
     }
 
     console.log(`[AI Agent 1] Extracted Category: ${extractedCategory} from issue: "${issueDescription}"`);
