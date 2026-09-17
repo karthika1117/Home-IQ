@@ -38,7 +38,11 @@ export default async function handler(req, res) {
     const { data: { user }, error: authError } = await systemClient.auth.getUser(token);
     if (authError || !user) return res.status(401).json({ success: false, message: 'Invalid token' });
 
-    const { data: customer, error: custError } = await systemClient.from('customers').select('*').eq('id', user.id).single();
+    const { data: customer, error: custError } = await systemClient
+      .from('customers')
+      .select('*')
+      .eq('profile_id', user.id)
+      .single();
     if (custError || !customer) return res.status(403).json({ success: false, message: 'Customer profile required' });
 
     const {
