@@ -1,29 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  WashingMachine, Wrench, MapPin, CalendarClock, Search, 
+  WashingMachine, MapPin, CalendarClock, Search, 
   CheckCircle, ArrowLeft, Star, User
 } from 'lucide-react';
 import PageContainer from '../../components/PageContainer';
 import Card from '../../components/Card';
-import Button from '../../components/Button';
 import Input from '../../components/Input';
+import Button from '../../components/Button';
 import Badge from '../../components/Badge';
 import { useCustomer } from '../../context/CustomerContext';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
-import {
-  sendServiceRequestToAgent1,
-  sendBookingConfirmationToAgent1,
-  buildBookingConfirmationPayload,
-} from '../../services/agent1Service';
-import './Dashboard.css';
+import { sendServiceRequestToAgent1, sendBookingConfirmationToAgent1 } from '../../services/agent1Service';
 
 export default function CreateServiceRequestPage() {
   const { customer } = useCustomer();
   const { profile } = useAuth();
   const navigate = useNavigate();
-
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [shortlist, setShortlist] = useState([]);
@@ -37,7 +32,7 @@ export default function CreateServiceRequestPage() {
   const [appliancesLoading, setAppliancesLoading] = useState(true);
 
   const [form, setForm] = useState({
-    category: '',
+    issueDescription: '',
     appliance_id: '',
     phone: profile?.phone || '',
     email: profile?.email || '',
@@ -59,172 +54,99 @@ export default function CreateServiceRequestPage() {
   }, [customer, profile]);
 
   useEffect(() => {
-    async function getAppliances() {
-      if (!customer?.customer_code) {
-        setAppliances([]);
-        setAppliancesLoading(false);
-        return;
-      }
+    async function loadAppliances() {
+      if (!customer?.customer_code) return;
       try {
-        const { data, error: fetchError } = await supabase
-          .from('appliances')
-          .select('appliance_id, brand, appliance_type')
-          .eq('customer_id', customer.customer_code);
-
-        if (fetchError) throw fetchError;
+        const { data } = await supabase.from('appliances').select('*').eq('customer_id', customer.customer_code);
         setAppliances(data || []);
-      } catch (fetchError) {
-        setError(fetchError.message || 'Unable to load your appliances.');
       } finally {
         setAppliancesLoading(false);
       }
     }
-    getAppliances();
+    loadAppliances();
   }, [customer]);
 
-  const handleChange = (field) => (e) => setForm((p) => ({ ...p, [field]: e.target.value }));
-
-  const handleConfirmBooking = async () => {
-    if (!selectedTechnician || !requestSnapshot?.requestId) {
-      setBookingError('Please select a technician before confirming the booking.');
-      return;
-    }
-    setBookingSubmitting(true);
-    setBookingError(null);
-    setBookingResult(null);
-
-    try {
-      const payload = buildBookingConfirmationPayload({
-        requestId: requestSnapshot.requestId,
-        customerId: requestSnapshot.customerId,
-        technicianId: selectedTechnician.technician_id,
-        applianceId: requestSnapshot.appliance_id ?? null,
-        category: requestSnapshot.category,
-        area: requestSnapshot.area,
-        preferredDate: requestSnapshot.preferredDate,
-        preferredStart: requestSnapshot.preferredStart,
-        preferredEnd: requestSnapshot.preferredEnd,
-      });
-
-      const response = await sendBookingConfirmationToAgent1(payload);
-
-      if (response?.success === true) {
-        setBookingResult({
-          bookingId: response.bookingId || response.booking_id || 'N/A',
-          requestId: response.requestId || response.request_id || requestSnapshot.requestId,
-          technicianName: response.technicianName || selectedTechnician?.name || 'Technician',
-          date: response.preferredDate || requestSnapshot.preferredDate,
-          time: response.preferredStart && response.preferredEnd
-            ? `${response.preferredStart} - ${response.preferredEnd}`
-            : `${requestSnapshot.preferredStart} - ${requestSnapshot.preferredEnd}`,
-          area: response.area || requestSnapshot.area,
-        });
-        setShortlist([]);
-        setSelectedTechnicianId('');
-        setSelectedTechnician(null);
-        setError(null);
-        setRequestSnapshot(null);
-      } else {
-        setBookingError(response?.message || 'Unable to contact the booking system. Please try again.');
-      }
-    } catch (err) {
-      setBookingError(err.message || 'Unable to contact the booking system. Please try again.');
-    } finally {
-      setBookingSubmitting(false);
-    }
+  const handleChange = (field) => (e) => {
+    setForm(prev => ({ ...prev, [field]: e.target.value }));
+    setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const customerId = customer?.customer_code;
-    const customerName = profile?.full_name?.trim();
-    if (!customerId) return setError('Your customer account could not be loaded. Please complete your account setup.');
-    if (!customerName) return setError('Customer name is required.');
-    if (!form.category.trim()) return setError('Category is required.');
-    if (!form.area.trim()) return setError('Area is required.');
-    if (!form.preferred_date) return setError('Preferred date is required.');
-    if (!form.preferred_start) return setError('Preferred start time is required.');
-    if (!form.preferred_end) return setError('Preferred end time is required.');
-    if (form.preferred_start >= form.preferred_end) return setError('Preferred start time must be earlier than the preferred end time.');
-    if (form.appliance_id && !appliances.some((a) => a.appliance_id === form.appliance_id)) return setError('Please select an appliance from your account.');
-
+    if (!form.issueDescription.trim()) {
+      setError('Please provide a description of the issue.');
+      return;
+    }
     setLoading(true);
     setError(null);
-    setShortlist([]);
-    setSelectedTechnicianId('');
-    setSelectedTechnician(null);
-    setBookingResult(null);
-    setBookingError(null);
+
+    const requestPayload = {
+      customerId: customer?.customer_code,
+      customerName: profile?.full_name,
+      phone: form.phone,
+      email: form.email,
+      issueDescription: form.issueDescription,
+      applianceId: form.appliance_id || null,
+      address: form.address,
+      area: form.area,
+      preferredDate: form.preferred_date,
+      preferredStart: form.preferred_start,
+      preferredEnd: form.preferred_end
+    };
 
     try {
-      const { data: createdRequest, error: requestError } = await supabase
-        .from('service_requests')
-        .insert({
-          customer_id: customerId,
-          customer_name: customerName,
-          phone: profile?.phone || null,
-          email: profile?.email || null,
-          category: form.category.trim(),
-          appliance_id: form.appliance_id || null,
-          address: form.address.trim() || customer?.address || null,
-          area: form.area.trim(),
-          preferred_date: form.preferred_date,
-          preferred_start: form.preferred_start,
-          preferred_end: form.preferred_end,
-          status: 'Searching',
-        })
-        .select('request_id, customer_id, customer_name, category, area, preferred_date, preferred_start, preferred_end, appliance_id')
-        .single();
-
-      if (requestError) throw requestError;
-
-      const snapshot = {
-        requestId: createdRequest.request_id,
-        customerId: createdRequest.customer_id,
-        category: createdRequest.category,
-        area: createdRequest.area,
-        preferredDate: createdRequest.preferred_date,
-        preferredStart: createdRequest.preferred_start,
-        preferredEnd: createdRequest.preferred_end,
-        appliance_id: createdRequest.appliance_id || null,
-      };
-
-      setRequestSnapshot(snapshot);
-
-      const response = await sendServiceRequestToAgent1({
-        customerId,
-        customerName,
-        phone: profile?.phone || '',
-        email: profile?.email || '',
-        category: form.category.trim(),
-        applianceId: form.appliance_id || null,
-        address: form.address.trim() || customer?.address || '',
-        area: form.area.trim(),
-        preferredDate: form.preferred_date,
-        preferredStart: form.preferred_start,
-        preferredEnd: form.preferred_end,
-      });
-
-      const technicians = Array.isArray(response?.technicians) ? response.technicians : [];
-
-      if (response?.success === true && technicians.length > 0) {
-        setShortlist(technicians);
-        setError(null);
-      } else if (response?.success === true && technicians.length === 0) {
-        setError('No matching technicians are currently available.');
+      const matchResult = await sendServiceRequestToAgent1(requestPayload);
+      
+      if (matchResult && matchResult.success) {
+        setShortlist(matchResult.technicians || []);
+        setRequestSnapshot(requestPayload);
       } else {
-        setError(response?.message || response?.error || 'Unable to contact the service matching system.');
+        setError(matchResult?.message || 'Failed to find matching technicians. Please try again.');
       }
     } catch (err) {
-      setError(err.message || 'Unable to contact the service matching system.');
+      setError(err.message || 'An unexpected error occurred. Please try again later.');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleConfirmBooking = async () => {
+    setBookingSubmitting(true);
+    setBookingError(null);
+
+    try {
+      const result = await sendBookingConfirmationToAgent1({
+        requestId: `TEMP-${Date.now()}`,
+        customerId: requestSnapshot.customerId,
+        technicianId: selectedTechnician.technician_id,
+        applianceId: requestSnapshot.applianceId,
+        category: 'TBD', // The backend AI matched category will be handled downstream or can just be TBD
+        area: requestSnapshot.area,
+        preferredDate: requestSnapshot.preferredDate,
+        preferredStart: requestSnapshot.preferredStart,
+        preferredEnd: requestSnapshot.preferredEnd
+      });
+
+      if (result && result.success) {
+        setBookingResult({
+          bookingId: result.bookingId,
+          technicianName: selectedTechnician.name,
+          date: new Date(requestSnapshot.preferredDate).toLocaleDateString(),
+          time: `${requestSnapshot.preferredStart} - ${requestSnapshot.preferredEnd}`
+        });
+      } else {
+        setBookingError(result?.message || 'Failed to confirm booking.');
+      }
+    } catch (err) {
+      setBookingError(err.message || 'Error communicating with booking service.');
+    } finally {
+      setBookingSubmitting(false);
+    }
+  };
+
   return (
     <PageContainer>
-      <div className="flex items-center gap-4 mb-4">
+      <div className="flex items-center gap-4 mb-6">
         <Button variant="ghost" onClick={() => navigate(-1)}><ArrowLeft size={16} /> Back</Button>
         <h1 className="text-title">Request Service</h1>
       </div>
@@ -232,25 +154,31 @@ export default function CreateServiceRequestPage() {
       <div className="flex-col gap-6" style={{ maxWidth: '800px' }}>
         
         {/* Step 1: Request Form */}
-        {!shortlist.length && !bookingResult && (
+        {shortlist.length === 0 && !bookingResult && (
           <Card padding="lg">
-            {error && <div className="mb-4" style={{ color: 'var(--color-danger)', background: 'var(--color-danger-bg)', padding: '12px', borderRadius: 'var(--radius-sm)' }}>{error}</div>}
+            {error && (
+              <div className="mb-4" style={{ color: 'var(--color-danger)', background: 'var(--color-danger-bg)', padding: '12px', borderRadius: 'var(--radius-sm)' }}>
+                {error}
+              </div>
+            )}
             
             <form onSubmit={handleSubmit} className="flex-col gap-6">
               
               <div className="form-section">
-                <h3 className="flex items-center gap-2 mb-4" style={{ color: 'var(--color-navy)' }}><WashingMachine size={20} /> 1. Appliance & Service</h3>
-                <div className="grid-cards" style={{ gridTemplateColumns: '1fr 1fr' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                    <label style={{ fontSize: '0.875rem', fontWeight: 500 }}>Appliance (Optional)</label>
+                <h3 className="flex items-center gap-2 mb-4" style={{ color: 'var(--color-navy)' }}><WashingMachine size={20} /> 1. Appliance & Issue</h3>
+                <div className="flex-col gap-4">
+                  <div className="input-group">
+                    <label className="input-label" htmlFor="appliance_id">Appliance (Optional)</label>
                     <select
+                      id="appliance_id"
+                      className="input-field"
                       value={form.appliance_id}
                       onChange={handleChange('appliance_id')}
-                      style={{ padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', width: '100%', fontFamily: 'inherit' }}
                       disabled={appliancesLoading}
+                      style={{ padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', width: '100%', fontFamily: 'inherit' }}
                     >
                       <option value="">-- Select your appliance --</option>
-                      {appliances.map((app) => (
+                      {appliances.map(app => (
                         <option key={app.appliance_id} value={app.appliance_id}>
                           {app.brand} {app.appliance_type}
                         </option>
@@ -258,7 +186,18 @@ export default function CreateServiceRequestPage() {
                     </select>
                   </div>
                   
-                  <Input label="Service Category *" id="category" value={form.category} onChange={handleChange('category')} required placeholder="e.g. AC Repair" />
+                  <div className="input-group" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    <label className="input-label" htmlFor="issueDescription" style={{ fontSize: '0.875rem', fontWeight: 500 }}>Issue Description *</label>
+                    <textarea 
+                      id="issueDescription" 
+                      className="input-field" 
+                      style={{ minHeight: '100px', resize: 'vertical', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-border)', width: '100%', fontFamily: 'inherit' }}
+                      value={form.issueDescription} 
+                      onChange={handleChange('issueDescription')} 
+                      required 
+                      placeholder="E.g., My refrigerator is leaking water onto the kitchen floor from underneath the freezer compartment."
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -310,11 +249,11 @@ export default function CreateServiceRequestPage() {
                           <div className="flex gap-2 items-center" style={{ marginTop: '4px' }}>
                             <Badge variant={technician.verification ? 'success' : 'info'}>{technician.match_status || 'Recommended'}</Badge>
                             <span className="flex items-center gap-1 text-muted"><Star size={14} color="var(--color-warning)" fill="var(--color-warning)" /> {technician.rating ?? 'New'}</span>
-                            <span className="text-muted">• {technician.area || 'N/A'}</span>
+                            <span className="text-muted">? {technician.area || 'N/A'}</span>
                           </div>
                         </div>
                         <div style={{ fontSize: '0.9375rem', color: 'var(--color-navy)' }}>
-                          <strong>₹{technician.hourly_rate ?? 'N/A'}</strong> / hour
+                          <strong>,1{technician.hourly_rate ?? 'N/A'}</strong> / hour
                         </div>
                       </div>
                     </div>
@@ -345,7 +284,7 @@ export default function CreateServiceRequestPage() {
                 <h3 className="text-title" style={{ fontSize: '1.25rem', marginBottom: '16px' }}>Confirm Your Booking</h3>
                 <div className="flex-col gap-2" style={{ marginBottom: '24px' }}>
                   <p><strong>Technician:</strong> {selectedTechnician.name}</p>
-                  <p><strong>Rate:</strong> ₹{selectedTechnician.hourly_rate}/hour</p>
+                  <p><strong>Rate:</strong> ,1{selectedTechnician.hourly_rate}/hour</p>
                   <p><strong>Schedule:</strong> {requestSnapshot?.preferredDate} ({requestSnapshot?.preferredStart} - {requestSnapshot?.preferredEnd})</p>
                 </div>
                 {bookingError && <div style={{ color: 'var(--color-danger)', marginBottom: '16px' }}>{bookingError}</div>}

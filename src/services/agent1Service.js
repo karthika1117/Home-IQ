@@ -61,6 +61,7 @@ export function buildAgent1Payload(request) {
   const phone = String(request?.phone ?? '').trim();
   const email = String(request?.email ?? '').trim();
   const category = String(request?.category ?? '').trim();
+  const issueDescription = String(request?.issueDescription ?? '').trim();
   const applianceId = request?.applianceId ?? null;
   const address = String(request?.address ?? '').trim();
   const area = String(request?.area ?? '').trim();
@@ -72,6 +73,7 @@ export function buildAgent1Payload(request) {
     customerId,
     serviceType,
     category,
+    issueDescription,
     area,
     preferredDate,
     preferredStart,
@@ -104,7 +106,7 @@ export function buildBookingConfirmationPayload(request) {
 export function validateAgent1Request(request) {
   const customerId = request?.customerId?.trim();
   const customerName = request?.customerName?.trim();
-  const category = request?.category?.trim();
+  const issueDescription = request?.issueDescription?.trim();
   const area = request?.area?.trim();
   const preferredDate = request?.preferredDate?.trim();
   const preferredStart = request?.preferredStart?.trim();
@@ -112,7 +114,7 @@ export function validateAgent1Request(request) {
 
   if (!customerId) return 'Your customer account could not be loaded. Please complete your account setup.';
   if (!customerName) return 'Customer name is required.';
-  if (!category) return 'Service category is required.';
+  if (!issueDescription) return 'Issue description is required.';
   if (!area) return 'Area is required.';
   if (!preferredDate) return 'Preferred date is required.';
   if (!preferredStart) return 'Preferred start time is required.';
