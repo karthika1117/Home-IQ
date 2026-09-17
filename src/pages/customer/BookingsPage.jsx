@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { CalendarCheck, RefreshCw } from 'lucide-react';
 import PageContainer from '../../components/PageContainer';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
+import Badge from '../../components/Badge';
 import { useCustomer } from '../../context/CustomerContext';
 import { supabase } from '../../lib/supabaseClient';
 import LoadingState from '../../components/LoadingState';
@@ -20,7 +22,7 @@ export default function BookingsPage() {
     try {
       const { data, error: fetchErr } = await supabase
         .from('bookings')
-        .select('booking_id, service_category, service_date, start_time, end_time, status, technician_id, area, address, customer_name')
+        .select('booking_id, service_category, service_date, service_time_slot, status, technicians(full_name), area, address, customer_name')
         .eq('customer_id', customer.customer_code)
         .order('service_date', { ascending: false });
 
@@ -40,22 +42,24 @@ export default function BookingsPage() {
     return () => window.removeEventListener('focus', handleFocus);
   }, [load]);
 
-  const statusStyle = (status) => {
-    if (status === 'Booked') return { background: '#dbeafe', color: '#1d4ed8' };
-    if (status === 'Completed') return { background: '#dcfce7', color: '#15803d' };
-    if (status === 'Cancelled') return { background: '#fee2e2', color: '#b91c1c' };
-    return { background: '#f1f5f9', color: '#475569' };
+  const getStatusVariant = (status) => {
+    if (status === 'Confirmed' || status === 'Booked') return 'info';
+    if (status === 'Completed') return 'success';
+    if (status === 'Cancelled') return 'danger';
+    return 'warning';
   };
 
   return (
-    <PageContainer className="dashboard-content">
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem' }}>
-        <h1 className="dashboard-welcome__title" style={{ margin: 0 }}>My Bookings</h1>
-        <Button variant="ghost" size="sm" onClick={load} disabled={loading}>Refresh</Button>
+    <PageContainer>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-title">My Bookings</h1>
+        <Button variant="ghost" size="sm" onClick={load} disabled={loading}>
+          <RefreshCw size={16} /> Refresh
+        </Button>
       </div>
 
       {error && (
-        <div className="auth-message auth-message--error" style={{ marginBottom: '1.5rem' }}>
+        <div className="mb-4" style={{ color: 'var(--color-danger)', background: 'var(--color-danger-bg)', padding: '12px', borderRadius: 'var(--radius-sm)' }}>
           {error}
         </div>
       )}
@@ -64,17 +68,17 @@ export default function BookingsPage() {
         <LoadingState message="Loading your bookings..." fullHeight />
       ) : bookings.length === 0 ? (
         <EmptyState 
-          icon="📅"
+          icon={CalendarCheck}
           title="No bookings yet"
           description="You don't have any upcoming or past bookings at this time."
         />
       ) : (
-        <Card padding="none">
+        <Card padding="none" style={{ overflowX: 'auto' }}>
           <table className="data-table">
             <thead>
               <tr>
                 <th>Service</th>
-                <th>Technician ID</th>
+                <th>Technician</th>
                 <th>Date</th>
                 <th>Time</th>
                 <th>Area</th>
@@ -84,12 +88,12 @@ export default function BookingsPage() {
             <tbody>
               {bookings.map(b => (
                 <tr key={b.booking_id}>
-                  <td className="td-primary">{b.service_category || 'Service Call'}</td>
-                  <td className="td-muted" style={{ fontSize: '0.78rem', maxWidth: '130px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.technician_id || '—'}</td>
-                  <td>{b.service_date || '—'}</td>
-                  <td className="td-muted">{(b.start_time && b.end_time) ? `${b.start_time} – ${b.end_time}` : '—'}</td>
-                  <td className="td-muted">{b.area || '—'}</td>
-                  <td><span className="status-badge" style={statusStyle(b.status)}>{b.status}</span></td>
+                  <td style={{ fontWeight: 500, color: 'var(--color-navy)' }}>{b.service_category || 'Service Call'}</td>
+                  <td style={{ color: 'var(--color-text-secondary)' }}>{b.technicians?.full_name || 'Assigned Technician'}</td>
+                  <td style={{ color: 'var(--color-text-secondary)' }}>{new Date(b.service_date).toLocaleDateString() || '-'}</td>
+                  <td style={{ color: 'var(--color-text-secondary)' }}>{b.service_time_slot || '-'}</td>
+                  <td style={{ color: 'var(--color-text-secondary)' }}>{b.area || '-'}</td>
+                  <td><Badge variant={getStatusVariant(b.status)}>{b.status}</Badge></td>
                 </tr>
               ))}
             </tbody>

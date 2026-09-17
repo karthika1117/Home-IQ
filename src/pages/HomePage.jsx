@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Home, Shield, Smartphone, Calendar, CheckCircle } from 'lucide-react';
 import './HomePage.css';
 
 export default function HomePage() {
@@ -8,8 +9,8 @@ export default function HomePage() {
       {/* Top nav */}
       <header className="home-header">
         <div className="home-header__inner">
-          <span className="home-header__brand">
-            <span aria-hidden="true" style={{color: 'var(--color-primary)'}}>🏠</span> HomeIQ
+          <span className="home-header__brand flex items-center gap-2">
+            <Home size={24} color="var(--color-primary)" /> HomeIQ
           </span>
           <nav className="home-header__nav">
             <Link to="/login" className="home-header__link">Sign in</Link>
@@ -35,13 +36,13 @@ export default function HomePage() {
         {/* Feature strip */}
         <div className="home-features">
           {[
-            { icon: '⭐', label: 'Skilled Technicians' },
-            { icon: '📱', label: 'Mobile Friendly' },
-            { icon: '📅', label: 'Easy Scheduling' },
-            { icon: '🛡️', label: 'Trusted Platform' },
+            { icon: <Shield size={20} />, label: 'Skilled Technicians' },
+            { icon: <Smartphone size={20} />, label: 'Mobile Friendly' },
+            { icon: <Calendar size={20} />, label: 'Easy Scheduling' },
+            { icon: <CheckCircle size={20} />, label: 'Trusted Platform' },
           ].map(({ icon, label }) => (
             <div key={label} className="home-feature">
-              <span className="home-feature__icon" aria-hidden="true">{icon}</span>
+              <span className="home-feature__icon" style={{ display: 'flex' }} aria-hidden="true">{icon}</span>
               <span className="home-feature__label">{label}</span>
             </div>
           ))}

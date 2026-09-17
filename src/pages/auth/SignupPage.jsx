@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Home } from 'lucide-react';
 import Button from '../../components/Button';
 import Input from '../../components/Input';
 import { supabase } from '../../lib/supabaseClient';
@@ -219,8 +220,8 @@ export default function SignupPage() {
   return (
     <div className="auth-page">
       <div className="auth-card auth-card--wide auth-card--signup">
-        <div className="auth-brand">
-          <span className="auth-brand__icon" aria-hidden="true">🏠</span>
+        <div className="auth-brand" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <Home size={28} color="var(--color-primary)" />
           <span className="auth-brand__name">HomeIQ</span>
         </div>
 

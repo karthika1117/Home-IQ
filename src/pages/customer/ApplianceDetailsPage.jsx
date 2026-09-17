@@ -1,9 +1,11 @@
-import LoadingState from '../../components/LoadingState';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, WashingMachine, Calendar, Activity, PenTool, AlertCircle } from 'lucide-react';
 import PageContainer from '../../components/PageContainer';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
+import Badge from '../../components/Badge';
+import LoadingState from '../../components/LoadingState';
 import { useCustomer } from '../../context/CustomerContext';
 import { supabase } from '../../lib/supabaseClient';
 
@@ -48,62 +50,93 @@ export default function ApplianceDetailsPage() {
     loadData();
   }, [applianceId, customer.customer_code]);
 
-  if (loading) return <PageContainer className="dashboard-content"><LoadingState message="Loading..." fullHeight={true} /></PageContainer>;
-  if (error) return <PageContainer className="dashboard-content"><div className="auth-message auth-message--error">{error}</div><Button onClick={() => navigate('/customer/appliances')}>Back</Button></PageContainer>;
+  if (loading) return <PageContainer><LoadingState message="Loading..." fullHeight={true} /></PageContainer>;
+  if (error) return (
+    <PageContainer>
+      <div className="mb-4" style={{ color: 'var(--color-danger)', background: 'var(--color-danger-bg)', padding: '12px', borderRadius: 'var(--radius-sm)' }}>{error}</div>
+      <Button variant="secondary" onClick={() => navigate('/customer/appliances')}>Back to Appliances</Button>
+    </PageContainer>
+  );
 
   return (
-    <PageContainer className="dashboard-content">
-      <div style={{ marginBottom: '2rem' }}>
-        <Button variant="ghost" size="sm" onClick={() => navigate('/customer/appliances')} style={{ marginBottom: '1rem' }}>← Back to Appliances</Button>
-        <h1 className="dashboard-welcome__title">{appliance.brand} {appliance.appliance_type}</h1>
+    <PageContainer>
+      <div className="flex items-center gap-4 mb-6">
+        <Button variant="ghost" onClick={() => navigate('/customer/appliances')}><ArrowLeft size={16} /> Back</Button>
+        <h1 className="text-title">{appliance.brand} {appliance.appliance_type}</h1>
       </div>
 
-      <div style={{ display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+      <div className="grid-cards" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+        {/* Basic Information */}
         <Card padding="lg">
-          <h2 className="dashboard-section__title">Basic Information</h2>
-          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <p><strong>Model:</strong> {appliance.model || 'N/A'}</p>
-            <p><strong>Health Score:</strong> {appliance.health_score}/100 ({appliance.health_status})</p>
-            <p><strong>Installation Date:</strong> {appliance.installation_date || 'N/A'}</p>
-            <p><strong>Last Service:</strong> {appliance.last_service_date || 'N/A'}</p>
+          <h2 className="flex items-center gap-2 text-title" style={{ fontSize: '1.125rem', marginBottom: '16px' }}><WashingMachine size={20} /> Basic Information</h2>
+          <div className="flex-col gap-4">
+            <div className="flex justify-between" style={{ paddingBottom: '12px', borderBottom: '1px solid var(--color-border)' }}>
+              <span className="text-muted">Model</span>
+              <span style={{ fontWeight: 500, color: 'var(--color-navy)' }}>{appliance.model || 'N/A'}</span>
+            </div>
+            <div className="flex justify-between" style={{ paddingBottom: '12px', borderBottom: '1px solid var(--color-border)' }}>
+              <span className="text-muted flex items-center gap-2"><Activity size={16} /> Health</span>
+              <span className="flex items-center gap-2">
+                <strong>{appliance.health_score}/100</strong>
+                <Badge variant={appliance.health_status === 'Good' ? 'success' : appliance.health_status === 'Critical' ? 'danger' : 'warning'}>
+                  {appliance.health_status}
+                </Badge>
+              </span>
+            </div>
+            <div className="flex justify-between" style={{ paddingBottom: '12px', borderBottom: '1px solid var(--color-border)' }}>
+              <span className="text-muted flex items-center gap-2"><Calendar size={16} /> Installation</span>
+              <span style={{ fontWeight: 500, color: 'var(--color-navy)' }}>{appliance.installation_date || 'N/A'}</span>
+            </div>
+            <div className="flex justify-between" style={{ paddingBottom: '12px' }}>
+              <span className="text-muted flex items-center gap-2"><PenTool size={16} /> Last Service</span>
+              <span style={{ fontWeight: 500, color: 'var(--color-navy)' }}>{appliance.last_service_date || 'N/A'}</span>
+            </div>
             {appliance.technician_notes && (
-              <div>
-                <strong>Technician Notes:</strong>
-                <p style={{ color: 'var(--color-text-secondary)', marginTop: '0.25rem', whiteSpace: 'pre-wrap' }}>{appliance.technician_notes}</p>
+              <div style={{ marginTop: '8px', backgroundColor: 'var(--color-surface-hover)', padding: '12px', borderRadius: 'var(--radius-sm)' }}>
+                <span className="text-muted" style={{ display: 'block', marginBottom: '4px', fontSize: '0.875rem' }}>Technician Notes</span>
+                <p style={{ margin: 0, fontSize: '0.9375rem', color: 'var(--color-navy)', whiteSpace: 'pre-wrap' }}>{appliance.technician_notes}</p>
               </div>
             )}
           </div>
         </Card>
 
+        {/* Service History */}
         <div>
-          <h2 className="dashboard-section__title" style={{ marginBottom: '1rem' }}>Service History</h2>
+          <h2 className="text-title" style={{ fontSize: '1.125rem', marginBottom: '16px' }}>Service History</h2>
           {history.length === 0 ? (
-            <Card padding="md"><p style={{ color: 'var(--color-text-secondary)', margin: 0 }}>No service history recorded.</p></Card>
+            <Card padding="md"><p className="text-muted" style={{ margin: 0 }}>No service history recorded.</p></Card>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="flex-col gap-4">
               {history.map(h => (
                 <Card key={h.history_id} padding="md">
-                  <h4 style={{ margin: '0 0 0.5rem' }}>{h.service_date} - {h.service_category}</h4>
-                  {h.issues_found && <p style={{ margin: '0 0 0.5rem', fontSize: '0.875rem' }}><strong>Issues:</strong> {h.issues_found}</p>}
-                  {h.technician_notes && <p style={{ margin: '0 0 0.5rem', fontSize: '0.875rem' }}><strong>Notes:</strong> {h.technician_notes}</p>}
-                  {h.amount && <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 'bold' }}>Cost: ${h.amount}</p>}
+                  <h4 style={{ margin: '0 0 8px', fontSize: '1rem', color: 'var(--color-navy)' }}>{new Date(h.service_date).toLocaleDateString()} - {h.service_category}</h4>
+                  {h.issues_found && <p style={{ margin: '0 0 4px', fontSize: '0.875rem', color: 'var(--color-navy-light)' }}><strong>Issues:</strong> {h.issues_found}</p>}
+                  {h.technician_notes && <p style={{ margin: '0 0 8px', fontSize: '0.875rem', color: 'var(--color-navy-light)' }}><strong>Notes:</strong> {h.technician_notes}</p>}
+                  {h.amount && <p style={{ margin: 0, fontSize: '0.9375rem', fontWeight: 600, color: 'var(--color-primary-dark)' }}>Cost: ₹{h.amount}</p>}
                 </Card>
               ))}
             </div>
           )}
         </div>
 
+        {/* Opportunities */}
         <div>
-          <h2 className="dashboard-section__title" style={{ marginBottom: '1rem' }}>Opportunities</h2>
+          <h2 className="text-title" style={{ fontSize: '1.125rem', marginBottom: '16px' }}>Opportunities</h2>
           {opportunities.length === 0 ? (
-            <Card padding="md"><p style={{ color: 'var(--color-text-secondary)', margin: 0 }}>No open opportunities.</p></Card>
+            <Card padding="md"><p className="text-muted" style={{ margin: 0 }}>No open opportunities.</p></Card>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="flex-col gap-4">
               {opportunities.map(o => (
-                <Card key={o.opportunity_id} padding="md" style={{ borderLeft: o.priority === 'High' ? '4px solid #ef4444' : '4px solid #3b82f6' }}>
-                  <h4 style={{ margin: '0 0 0.5rem' }}>{o.title} <span style={{ fontSize: '0.75rem', background: '#f1f5f9', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>{o.status}</span></h4>
-                  <p style={{ margin: '0 0 0.5rem', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>{o.description}</p>
-                  {o.suggested_action && <p style={{ margin: 0, fontSize: '0.875rem' }}><strong>Action:</strong> {o.suggested_action}</p>}
+                <Card key={o.opportunity_id} padding="md" style={{ borderLeft: o.priority === 'High' ? '4px solid var(--color-danger)' : '4px solid var(--color-info)' }}>
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="flex items-center gap-2" style={{ margin: 0, fontSize: '1rem', color: 'var(--color-navy)' }}>
+                      {o.priority === 'High' && <AlertCircle size={16} color="var(--color-danger)" />}
+                      {o.title}
+                    </h4>
+                    <Badge variant="neutral">{o.status}</Badge>
+                  </div>
+                  <p className="text-muted" style={{ margin: '0 0 8px', fontSize: '0.875rem' }}>{o.description}</p>
+                  {o.suggested_action && <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--color-navy-light)' }}><strong>Action:</strong> {o.suggested_action}</p>}
                 </Card>
               ))}
             </div>

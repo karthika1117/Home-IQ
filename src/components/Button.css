@@ -6,7 +6,7 @@
   font-family: inherit;
   font-weight: 500;
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm); /* Slightly sharper for buttons */
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
@@ -17,7 +17,7 @@
 
 .btn:focus-visible {
   outline: none;
-  box-shadow: var(--shadow-focus);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 /* Sizes */
@@ -35,19 +35,19 @@
   border-color: var(--color-primary);
 }
 .btn--primary:hover:not(:disabled) {
-  background-color: var(--color-primary-dark);
-  border-color: var(--color-primary-dark);
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
   box-shadow: var(--shadow-md);
 }
 
 .btn--secondary {
   background-color: var(--color-surface);
-  color: var(--color-text-primary);
+  color: var(--color-text);
   border-color: var(--color-border);
 }
 .btn--secondary:hover:not(:disabled) {
   background-color: var(--color-surface-hover);
-  border-color: var(--color-border-strong);
+  border-color: var(--color-text-muted);
 }
 
 .btn--ghost {
@@ -57,8 +57,8 @@
   box-shadow: none;
 }
 .btn--ghost:hover:not(:disabled) {
-  background-color: var(--color-surface-2);
-  color: var(--color-text-primary);
+  background-color: var(--color-surface-hover);
+  color: var(--color-text);
 }
 
 .btn--danger {
@@ -67,7 +67,7 @@
   border-color: var(--color-danger);
 }
 .btn--danger:hover:not(:disabled) {
-  background-color: #b91c1c; /* Darker red */
+  background-color: #b91c1c;
   border-color: #b91c1c;
   box-shadow: var(--shadow-md);
 }

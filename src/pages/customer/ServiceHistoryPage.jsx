@@ -1,18 +1,24 @@
-import LoadingState from '../../components/LoadingState';
 import React, { useState, useEffect } from 'react';
+import { History, Receipt, ClipboardCheck, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import PageContainer from '../../components/PageContainer';
 import Card from '../../components/Card';
+import Button from '../../components/Button';
+import EmptyState from '../../components/EmptyState';
+import LoadingState from '../../components/LoadingState';
 import { useCustomer } from '../../context/CustomerContext';
 import { supabase } from '../../lib/supabaseClient';
 
 export default function ServiceHistoryPage() {
   const { customer } = useCustomer();
+  const navigate = useNavigate();
   const [history, setHistory] = useState([]);
   const [appliances, setAppliances] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
+      if (!customer?.customer_code) return;
       try {
         const { data, error } = await supabase
           .from('service_history')
@@ -38,25 +44,52 @@ export default function ServiceHistoryPage() {
   }, [customer]);
 
   return (
-    <PageContainer className="dashboard-content">
-      <h1 className="dashboard-welcome__title" style={{ marginBottom: '2rem' }}>Service History</h1>
-      {loading ? <LoadingState message="Loading..." fullHeight={true} /> : history.length === 0 ? (
-        <Card padding="lg" style={{ textAlign: 'center' }}>
-          <p style={{ color: 'var(--color-text-secondary)', margin: 0 }}>No service history found.</p>
-        </Card>
+    <PageContainer>
+      <div className="flex items-center gap-4 mb-6">
+        <Button variant="ghost" onClick={() => navigate(-1)}><ArrowLeft size={16} /> Back</Button>
+        <h1 className="text-title">Service History</h1>
+      </div>
+
+      {loading ? <LoadingState message="Loading history..." fullHeight={true} /> : history.length === 0 ? (
+        <EmptyState 
+          icon={History}
+          title="No service history" 
+          description="You haven't had any completed services yet."
+        />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="flex-col gap-4">
           {history.map(h => (
-            <Card key={h.history_id} padding="md">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <h3 style={{ margin: '0 0 0.5rem' }}>{h.service_category || 'Service Call'}</h3>
-                  <p style={{ margin: '0 0 0.5rem', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>Date: {h.service_date}</p>
-                  <p style={{ margin: '0 0 0.5rem', fontSize: '0.875rem' }}><strong>Appliance:</strong> {formatAppliance(appliances[h.appliance_id], h.appliance_id)}</p>
-                  {h.issues_found && <p style={{ margin: '0 0 0.25rem', fontSize: '0.875rem' }}><strong>Issues:</strong> {h.issues_found}</p>}
-                  {h.technician_notes && <p style={{ margin: 0, fontSize: '0.875rem' }}><strong>Notes:</strong> {h.technician_notes}</p>}
+            <Card key={h.history_id} padding="lg">
+              <div className="flex justify-between" style={{ alignItems: 'flex-start' }}>
+                <div className="flex gap-4">
+                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: 'var(--color-surface-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <ClipboardCheck size={24} color="var(--color-text-muted)" />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--color-navy)', margin: '0 0 4px' }}>
+                      {h.service_category || 'Service Call'}
+                    </h3>
+                    <p className="text-muted" style={{ marginBottom: '12px' }}>
+                      {new Date(h.service_date).toLocaleDateString()} • {formatAppliance(appliances[h.appliance_id], h.appliance_id)}
+                    </p>
+                    {h.issues_found && (
+                      <p style={{ fontSize: '0.9375rem', color: 'var(--color-navy-light)', marginBottom: '4px' }}>
+                        <strong>Issues found:</strong> {h.issues_found}
+                      </p>
+                    )}
+                    {h.technician_notes && (
+                      <p style={{ fontSize: '0.9375rem', color: 'var(--color-navy-light)' }}>
+                        <strong>Technician notes:</strong> {h.technician_notes}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                {h.amount && <div style={{ fontWeight: 'bold', fontSize: '1.125rem' }}>${h.amount}</div>}
+                {h.amount != null && (
+                  <div className="flex items-center gap-2" style={{ backgroundColor: 'var(--color-surface-hover)', padding: '8px 12px', borderRadius: 'var(--radius-md)' }}>
+                    <Receipt size={16} color="var(--color-text-muted)" />
+                    <span style={{ fontWeight: 600, color: 'var(--color-navy)' }}>₹{h.amount}</span>
+                  </div>
+                )}
               </div>
             </Card>
           ))}
@@ -68,5 +101,5 @@ export default function ServiceHistoryPage() {
 
 function formatAppliance(appliance, applianceId) {
   if (appliance) return [appliance.brand, appliance.model, appliance.appliance_type].filter(Boolean).join(' ') || 'Appliance';
-  return applianceId || 'N/A';
+  return applianceId || 'General Service';
 }

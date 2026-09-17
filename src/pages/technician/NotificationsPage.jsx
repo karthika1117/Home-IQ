@@ -1,8 +1,10 @@
-import LoadingState from '../../components/LoadingState';
 import React, { useState, useEffect } from 'react';
+import { Bell, Check, BellRing } from 'lucide-react';
 import PageContainer from '../../components/PageContainer';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
+import EmptyState from '../../components/EmptyState';
+import LoadingState from '../../components/LoadingState';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
 
@@ -13,6 +15,7 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     async function load() {
+      if (!user) return;
       try {
         const { data } = await supabase
           .from('notifications')
@@ -24,7 +27,7 @@ export default function NotificationsPage() {
         setLoading(false);
       }
     }
-    if (user) load();
+    load();
   }, [user]);
 
   const markAsRead = async (id) => {
@@ -39,26 +42,38 @@ export default function NotificationsPage() {
   };
 
   return (
-    <PageContainer className="dashboard-content">
-      <h1 className="dashboard-welcome__title" style={{ marginBottom: '2rem' }}>Notifications</h1>
-      {loading ? <LoadingState message="Loading..." fullHeight={true} /> : notifications.length === 0 ? (
-        <Card padding="lg" style={{ textAlign: 'center' }}>
-          <p style={{ color: 'var(--color-text-secondary)', margin: 0 }}>You're all caught up.</p>
-        </Card>
+    <PageContainer>
+      <div className="flex items-center gap-2 mb-6">
+        <h1 className="text-title">Notifications</h1>
+      </div>
+
+      {loading ? <LoadingState message="Loading notifications..." fullHeight={true} /> : notifications.length === 0 ? (
+        <EmptyState 
+          icon={Bell}
+          title="No notifications"
+          description="You're all caught up!"
+        />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="flex-col gap-4">
           {notifications.map(n => (
-            <Card key={n.notification_id} padding="md" style={{ background: n.read ? 'var(--color-surface)' : '#f0fdf4' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.0625rem' }}>{n.title}</h3>
-                  <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--color-text-secondary)' }}>{n.message}</p>
-                  <p style={{ margin: '0.75rem 0 0', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
-                    {n.type || 'General'} · {n.created_at ? new Date(n.created_at).toLocaleString() : 'Date unavailable'} · {n.read ? 'Read' : 'Unread'}
-                  </p>
+            <Card key={n.notification_id} padding="md" style={{ backgroundColor: n.read ? 'var(--color-surface)' : 'var(--color-primary-bg)', border: n.read ? undefined : '1px solid var(--color-primary-light)' }}>
+              <div className="flex justify-between" style={{ alignItems: 'flex-start' }}>
+                <div className="flex gap-4">
+                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: n.read ? 'var(--color-surface-hover)' : 'var(--color-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <BellRing size={20} color={n.read ? 'var(--color-text-muted)' : 'var(--color-primary)'} />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: '0 0 4px', fontSize: '1rem', color: 'var(--color-navy)', fontWeight: n.read ? 500 : 600 }}>{n.title}</h3>
+                    <p style={{ margin: 0, fontSize: '0.9375rem', color: n.read ? 'var(--color-text-secondary)' : 'var(--color-navy)' }}>{n.message}</p>
+                    <p style={{ margin: '8px 0 0', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                      {n.type || 'General'} • {n.created_at ? new Date(n.created_at).toLocaleString() : 'Date unavailable'} • {n.read ? 'Read' : 'Unread'}
+                    </p>
+                  </div>
                 </div>
                 {!n.read && (
-                  <Button variant="ghost" size="sm" onClick={() => markAsRead(n.notification_id)}>Mark Read</Button>
+                  <Button variant="ghost" size="sm" onClick={() => markAsRead(n.notification_id)}>
+                    <Check size={16} /> Mark Read
+                  </Button>
                 )}
               </div>
             </Card>

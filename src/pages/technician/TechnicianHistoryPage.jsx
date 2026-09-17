@@ -1,7 +1,10 @@
-import LoadingState from '../../components/LoadingState';
 import React, { useState, useEffect } from 'react';
+import { ClipboardList, Calendar, WashingMachine, MessageSquare, AlertTriangle, Receipt } from 'lucide-react';
 import PageContainer from '../../components/PageContainer';
 import Card from '../../components/Card';
+import Badge from '../../components/Badge';
+import EmptyState from '../../components/EmptyState';
+import LoadingState from '../../components/LoadingState';
 import { useTechnician } from '../../context/TechnicianContext';
 import { supabase } from '../../lib/supabaseClient';
 
@@ -13,6 +16,7 @@ export default function TechnicianHistoryPage() {
 
   useEffect(() => {
     async function load() {
+      if (!technician?.technician_id) return;
       try {
         const { data } = await supabase
           .from('service_history')
@@ -37,26 +41,69 @@ export default function TechnicianHistoryPage() {
     load();
   }, [technician]);
 
+  const formatAppliance = (appliance, applianceId) => {
+    if (appliance) return [appliance.brand, appliance.model, appliance.appliance_type].filter(Boolean).join(' ') || 'Appliance';
+    return applianceId || 'N/A';
+  };
+
   return (
-    <PageContainer className="dashboard-content">
-      <h1 className="dashboard-welcome__title" style={{ marginBottom: '2rem' }}>Completed Jobs & History</h1>
-      {loading ? <LoadingState message="Loading..." fullHeight={true} /> : history.length === 0 ? (
-        <Card padding="lg" style={{ textAlign: 'center' }}>
-          <p style={{ color: 'var(--color-text-secondary)', margin: 0 }}>Completed service visits will appear here.</p>
-        </Card>
+    <PageContainer>
+      <div className="flex items-center gap-2 mb-6">
+        <h1 className="text-title">Service History</h1>
+      </div>
+
+      {loading ? <LoadingState message="Loading your service history..." fullHeight={true} /> : history.length === 0 ? (
+        <EmptyState 
+          icon={ClipboardList}
+          title="No history yet"
+          description="Your completed service jobs will appear here."
+        />
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="flex-col gap-4">
           {history.map(h => (
-            <Card key={h.history_id} padding="md">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Card key={h.history_id} padding="lg">
+              <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 style={{ margin: '0 0 0.5rem' }}>{h.service_category || 'Service Call'}</h3>
-                  <p style={{ margin: '0 0 0.5rem', fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>Date: {h.service_date}</p>
-                  <p style={{ margin: '0 0 0.5rem', fontSize: '0.875rem' }}><strong>Appliance:</strong> {formatAppliance(appliances[h.appliance_id], h.appliance_id)}</p>
-                  {h.issues_found && <p style={{ margin: '0 0 0.25rem', fontSize: '0.875rem' }}><strong>Issues:</strong> {h.issues_found}</p>}
-                  {h.technician_notes && <p style={{ margin: 0, fontSize: '0.875rem' }}><strong>Notes:</strong> {h.technician_notes}</p>}
+                  <h3 className="text-title flex items-center gap-2" style={{ margin: '0 0 8px', fontSize: '1.25rem' }}>
+                    {h.service_category || 'Service Call'}
+                  </h3>
+                  <div className="flex items-center gap-2 text-muted" style={{ fontSize: '0.9375rem' }}>
+                    <Calendar size={16} />
+                    {h.service_date ? new Date(h.service_date).toLocaleDateString() : 'TBD'}
+                  </div>
                 </div>
-                {h.amount && <div style={{ fontWeight: 'bold', fontSize: '1.125rem' }}>${h.amount}</div>}
+                {h.amount && (
+                  <div className="flex items-center gap-1" style={{ fontWeight: 600, fontSize: '1.125rem', color: 'var(--color-navy)' }}>
+                    <Receipt size={18} /> ₹{h.amount}
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex-col gap-3" style={{ backgroundColor: 'var(--color-surface-hover)', padding: '16px', borderRadius: 'var(--radius-sm)' }}>
+                <div className="flex items-start gap-2">
+                  <WashingMachine size={16} className="text-muted" style={{ marginTop: '2px' }} />
+                  <span style={{ fontSize: '0.9375rem', color: 'var(--color-navy)' }}>
+                    <strong className="text-muted">Appliance:</strong> {formatAppliance(appliances[h.appliance_id], h.appliance_id)}
+                  </span>
+                </div>
+                
+                {h.issues_found && (
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle size={16} className="text-muted" style={{ marginTop: '2px' }} />
+                    <span style={{ fontSize: '0.9375rem', color: 'var(--color-navy)' }}>
+                      <strong className="text-muted">Issues:</strong> {h.issues_found}
+                    </span>
+                  </div>
+                )}
+                
+                {h.technician_notes && (
+                  <div className="flex items-start gap-2">
+                    <MessageSquare size={16} className="text-muted" style={{ marginTop: '2px' }} />
+                    <span style={{ fontSize: '0.9375rem', color: 'var(--color-navy)' }}>
+                      <strong className="text-muted">Notes:</strong> {h.technician_notes}
+                    </span>
+                  </div>
+                )}
               </div>
             </Card>
           ))}
@@ -64,9 +111,4 @@ export default function TechnicianHistoryPage() {
       )}
     </PageContainer>
   );
-}
-
-function formatAppliance(appliance, applianceId) {
-  if (appliance) return [appliance.brand, appliance.model, appliance.appliance_type].filter(Boolean).join(' ') || 'Appliance';
-  return applianceId || 'N/A';
 }

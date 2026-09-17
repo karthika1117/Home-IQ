@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Plus, CheckSquare, Search, FileText } from 'lucide-react';
 import PageContainer from '../../components/PageContainer';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
+import Badge from '../../components/Badge';
 import { useCustomer } from '../../context/CustomerContext';
 import { supabase } from '../../lib/supabaseClient';
 import LoadingState from '../../components/LoadingState';
@@ -17,6 +19,7 @@ export default function ServiceRequestsPage() {
 
   useEffect(() => {
     async function loadRequests() {
+      if (!customer?.customer_code) return;
       try {
         const { data, error } = await supabase
           .from('service_requests')
@@ -39,26 +42,46 @@ export default function ServiceRequestsPage() {
     return () => window.removeEventListener('focus', handleFocus);
   }, [customer]);
 
+  const getStatusVariant = (status) => {
+    if (['Completed', 'Complete'].includes(status)) return 'success';
+    if (['Cancelled', 'Canceled', 'Rejected'].includes(status)) return 'danger';
+    if (['Booked', 'Confirmed', 'Assigned'].includes(status)) return 'info';
+    if (status === 'Searching') return 'warning';
+    return 'neutral';
+  };
+
+  const getStatusDescription = (status) => {
+    const descriptions = {
+      Searching: 'Finding a technician...',
+      Assigned: 'A technician has been assigned.',
+      Booked: 'Your appointment is confirmed.',
+      Confirmed: 'Your appointment is confirmed.',
+      Completed: 'Service completed.',
+      Complete: 'Service completed.'
+    };
+    return descriptions[status] || 'Active request.';
+  };
+
   return (
-    <PageContainer className="dashboard-content">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1 className="dashboard-welcome__title">Service Requests</h1>
-        <Button onClick={() => navigate('/customer/requests/new')}>+ Request Service</Button>
+    <PageContainer>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-title">Service Requests</h1>
+        <Button onClick={() => navigate('/customer/requests/new')}><Plus size={16} /> Request Service</Button>
       </div>
 
       {loading ? (
         <LoadingState message="Loading your service requests..." fullHeight />
       ) : error ? (
-        <div className="auth-message auth-message--error" role="alert">{error}</div>
+        <div className="mb-4" style={{ color: 'var(--color-danger)', background: 'var(--color-danger-bg)', padding: '12px', borderRadius: 'var(--radius-sm)' }}>{error}</div>
       ) : requests.length === 0 ? (
         <EmptyState 
-          icon="🔧"
+          icon={FileText}
           title="No service requests yet"
           description="You haven't made any service requests yet."
           action={<Button variant="primary" onClick={() => navigate('/customer/requests/new')}>Request Service</Button>}
         />
       ) : (
-        <Card padding="none">
+        <Card padding="none" style={{ overflowX: 'auto' }}>
           <table className="data-table">
             <thead>
               <tr>
@@ -72,14 +95,14 @@ export default function ServiceRequestsPage() {
             <tbody>
               {requests.map(r => (
                 <tr key={r.request_id}>
-                  <td className="td-primary">{r.category || 'Service request'}</td>
-                  <td>{r.appliance_id || 'None selected'}</td>
-                  <td>{r.area || 'N/A'}</td>
-                  <td>{r.preferred_date || 'Flexible'}</td>
+                  <td style={{ fontWeight: 500, color: 'var(--color-navy)' }}>{r.category || 'Service request'}</td>
+                  <td style={{ color: 'var(--color-text-secondary)' }}>{r.appliance_id || 'None selected'}</td>
+                  <td style={{ color: 'var(--color-text-secondary)' }}>{r.area || 'N/A'}</td>
+                  <td style={{ color: 'var(--color-text-secondary)' }}>{r.preferred_date ? new Date(r.preferred_date).toLocaleDateString() : 'Flexible'}</td>
                   <td>
-                    <span className="status-badge" style={statusStyle(r.status)}>{r.status || 'Status unavailable'}</span>
-                    <div style={{ marginTop: '0.35rem', fontSize: '0.75rem', color: 'var(--color-text-secondary)' }}>
-                      {statusDescription(r.status)}
+                    <Badge variant={getStatusVariant(r.status)}>{r.status || 'Unknown'}</Badge>
+                    <div style={{ marginTop: '0.35rem', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                      {getStatusDescription(r.status)}
                     </div>
                   </td>
                 </tr>
@@ -90,23 +113,4 @@ export default function ServiceRequestsPage() {
       )}
     </PageContainer>
   );
-}
-
-function statusStyle(status) {
-  if (['Completed', 'Complete'].includes(status)) return { background: '#dcfce7', color: '#15803d' };
-  if (['Cancelled', 'Canceled', 'Rejected'].includes(status)) return { background: '#fee2e2', color: '#b91c1c' };
-  if (['Booked', 'Confirmed', 'Assigned'].includes(status)) return { background: '#ede9fe', color: '#6d28d9' };
-  return { background: '#dbeafe', color: '#1d4ed8' };
-}
-
-function statusDescription(status) {
-  const descriptions = {
-    Searching: 'Request submitted and searching for a technician.',
-    Assigned: 'A technician has been assigned.',
-    Booked: 'Your service appointment is confirmed.',
-    Confirmed: 'Your service appointment is confirmed.',
-    Completed: 'Service completed.',
-    Complete: 'Service completed.'
-  };
-  return descriptions[status] || 'Current status from your service request.';
 }

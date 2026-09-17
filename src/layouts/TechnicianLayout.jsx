@@ -7,11 +7,13 @@ import Header from '../components/Header';
 export default function TechnicianLayout() {
   return (
     <TechnicianProvider>
-      <div className="dashboard-layout">
+      <div className="app-shell">
         <Navbar />
-        <div className="dashboard-main">
+        <div className="app-main">
           <Header />
-          <Outlet />
+          <div className="app-content">
+            <Outlet />
+          </div>
         </div>
       </div>
     </TechnicianProvider>
