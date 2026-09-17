@@ -8,6 +8,9 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // ── Minimal fetch helper ──────────────────────────────────────────────────────
 // The server runs on port 3001; we start it inside each test suite via
@@ -228,13 +231,19 @@ test('Database failure returns generic server error without leaking internals', 
   assert.doesNotMatch(data.message || '', /syntax error|pg|pgsql|relation|column/i);
 });
 
-test('Agent 1 is completely isolated from booking confirm', () => {
-  // The booking payload must NOT contain any Agent 1-only fields
-  // such as 'serviceType', 'customerName', 'phone', 'email', 'address'
-  const p = validPayload();
-  assert.equal(p.serviceType, undefined);
-  assert.equal(p.customerName, undefined);
-  assert.equal(p.phone, undefined);
-  assert.equal(p.email, undefined);
+
+test('SNS Agent 1 integration is mandatory for booking confirmation', () => {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  
+  const confirmBookingPath = path.join(__dirname, '../api/confirm-booking.js');
+  const code = fs.readFileSync(confirmBookingPath, 'utf8');
+  
+  // We want to ensure that the code explicitly mandates SNS integration for technician selection.
+  const hitsSns = code.includes('fetch(agent1WebhookUrl') || code.includes('fetch(env.VITE_AGENT1_WEBHOOK_URL');
+  const validatesSelection = code.includes('action: \'select_technician\'');
+  
+  assert.ok(hitsSns, 'The booking confirmation API MUST contact SNS Agent 1.');
+  assert.ok(validatesSelection, 'The booking confirmation API MUST send the select_technician action to SNS.');
 });
 

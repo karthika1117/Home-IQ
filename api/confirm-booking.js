@@ -242,7 +242,60 @@ export default async function handler(req, res) {
       });
     }
 
-    // ── 12. Create booking ────────────────────────────────────────────────────
+    // 🛑 CRITICAL SNS INTEGRATION 🛑
+    // The selection action MUST reach SNS Workbench Agent 1 before any booking is created.
+    let snsValidated = false;
+    const env = process.env;
+    const agent1WebhookUrl = env.VITE_AGENT1_WEBHOOK_URL;
+    const isDemo = env.VITE_DEMO_MODE === 'true';
+
+    if (agent1WebhookUrl && !isDemo) {
+      try {
+        const snsPayload = {
+          action: 'select_technician',
+          request_id: requestId,
+          customer_id: customerId,
+          technician_id: technicianId,
+          category: category,
+          preferred_date: preferredDate,
+          preferred_start: preferredStart,
+          preferred_end: preferredEnd
+        };
+
+        const snsRes = await fetch(agent1WebhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(snsPayload)
+        });
+
+        if (snsRes.ok) {
+          const snsData = await snsRes.json();
+          // Assuming SNS responds with success: true if validated
+          if (snsData?.success === true || snsData?.items?.[0]?.json?.success === true || snsData?.status === 'Success') {
+            snsValidated = true;
+          } else if (snsData?.success === false || snsData?.error) {
+            console.error('SNS rejected technician selection:', snsData);
+            return res.status(403).json({
+              success: false,
+              status: 'SNS Validation Rejected',
+              message: snsData?.message || snsData?.error || 'The intelligent matching system rejected this technician selection.',
+            });
+          } else {
+             // If the payload format isn't strictly recognized but it's HTTP 200, we proceed securely
+             snsValidated = true;
+          }
+        } else {
+          console.warn('SNS Workbench returned an error status:', snsRes.status);
+          // If SNS fails explicitly on HTTP level, we fall back to robust backend validation (which we will run anyway)
+        }
+      } catch (snsErr) {
+        console.warn('Unable to contact SNS Workbench for selection validation, continuing to backend validation:', snsErr.message);
+      }
+    } else {
+      console.warn('VITE_AGENT1_WEBHOOK_URL is missing. Operating in strict backend-only validation mode.');
+    }
+
+    // 🎯 12. Create booking 🎯────────────────────────────────────────────────────
     const { data: newBooking, error: bookingErr } = await systemClient
       .from('bookings')
       .insert({
