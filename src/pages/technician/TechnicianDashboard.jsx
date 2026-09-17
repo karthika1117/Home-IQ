@@ -38,7 +38,7 @@ export default function TechnicianDashboard() {
           supabase.from('bookings').select('booking_id', { count: 'exact', head: true }).eq('technician_id', techId).eq('status', 'Completed'),
           supabase.from('service_history').select('history_id', { count: 'exact', head: true }).eq('technician_id', techId),
           supabase.from('notifications').select('notification_id', { count: 'exact', head: true }).eq('user_id', profile.id).eq('read', false),
-          supabase.from('bookings').select('booking_id, customer_name, service_category, service_date, service_time_slot, status, area').eq('technician_id', techId).order('service_date', { ascending: false }).limit(5)
+          supabase.from('bookings').select('booking_id, customer_name, service_category, service_date, start_time, end_time, status, area').eq('technician_id', techId).order('service_date', { ascending: false }).limit(5)
         ]);
 
         const failedRequest = [upRes, compRes, histRes, notificationRes, recentRes].find(result => result.error);
@@ -118,7 +118,7 @@ export default function TechnicianDashboard() {
                   <tr key={job.booking_id}>
                     <td style={{ fontWeight: 500 }}><Link to={`/technician/jobs/${job.booking_id}`} style={{ color: 'var(--color-navy)', textDecoration: 'none' }}>{job.customer_name || 'Customer'}</Link></td>
                     <td style={{ color: 'var(--color-text-secondary)' }}>{job.service_category || 'Service Call'}</td>
-                    <td style={{ color: 'var(--color-text-secondary)' }}>{new Date(job.service_date).toLocaleDateString()} {job.service_time_slot ? `, ${job.service_time_slot}` : ''}</td>
+                    <td style={{ color: 'var(--color-text-secondary)' }}>{new Date(job.service_date).toLocaleDateString()} {(job.start_time || job.end_time) ? `, ${job.start_time || ''} - ${job.end_time || ''}`.replace(/ - $/, '') : ''}</td>
                     <td style={{ color: 'var(--color-text-secondary)' }}>{job.area || 'N/A'}</td>
                     <td><Badge variant={getStatusVariant(job.status)}>{job.status || 'Unknown'}</Badge></td>
                   </tr>

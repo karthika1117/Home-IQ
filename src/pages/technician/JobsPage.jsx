@@ -25,7 +25,7 @@ export default function JobsPage() {
     try {
       const { data, error: jobsErr } = await supabase
         .from('bookings')
-        .select('booking_id, customer_id, customer_name, service_category, appliance_id, service_date, service_time_slot, start_time, end_time, status, area, address')
+        .select('booking_id, customer_id, customer_name, service_category, appliance_id, service_date, start_time, end_time, status, area, address')
         .eq('technician_id', technician.technician_id)
         .order('service_date', { ascending: true });
 
@@ -99,7 +99,7 @@ export default function JobsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock size={16} className="text-muted" />
-                  <span className="text-muted" style={{ fontSize: '0.9375rem' }}>{j.service_time_slot || ((j.start_time && j.end_time) ? `${j.start_time} - ${j.end_time}` : j.start_time) || 'TBD'}</span>
+                  <span className="text-muted" style={{ fontSize: '0.9375rem' }}>{((j.start_time && j.end_time) ? `${j.start_time} - ${j.end_time}` : j.start_time) || 'TBD'}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin size={16} className="text-muted" />

@@ -189,7 +189,7 @@ export default function JobDetailsPage() {
             <div className="flex items-center gap-2">
               <Clock size={18} className="text-muted" />
               <span className="text-muted" style={{ minWidth: '100px' }}>Time:</span>
-              <strong style={{ color: 'var(--color-navy)' }}>{job.service_time_slot || 'TBD'}</strong>
+              <strong style={{ color: 'var(--color-navy)' }}>{((job.start_time && job.end_time) ? `${job.start_time} - ${job.end_time}` : job.start_time) || 'TBD'}</strong>
             </div>
             <div className="flex items-center gap-2">
               <MapPin size={18} className="text-muted" />

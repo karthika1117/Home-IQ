@@ -101,7 +101,7 @@ export default function CustomerDashboard() {
               <div className="appointment-card__details">
                 <div className="appointment-detail">
                   <Clock size={16} />
-                  <span>{new Date(data.nextBooking.service_date).toLocaleDateString()} at {data.nextBooking.service_time_slot}</span>
+                  <span>{new Date(data.nextBooking.service_date).toLocaleDateString()} at {((data.nextBooking.start_time && data.nextBooking.end_time) ? `${data.nextBooking.start_time} - ${data.nextBooking.end_time}` : data.nextBooking.start_time) || 'TBD'}</span>
                 </div>
               </div>
               <div className="appointment-card__footer">
